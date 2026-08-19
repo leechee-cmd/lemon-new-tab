@@ -1,6 +1,6 @@
 import type { TopSites } from 'webextension-polyfill'
 
-import type { QuickLink, QuickLinkGroup } from '@/shared/quickLinks'
+import { useLanModeStore, type QuickLink, type QuickLinkGroup } from '@/shared/quickLinks'
 
 export interface QuickLinkDisplayItem {
   url: string
@@ -15,6 +15,7 @@ export function buildQuickLinkDisplayItems(
   quickLinks: QuickLink[],
   topSites: TopSites.MostVisitedURL[],
 ): QuickLinkDisplayItem[] {
+  const lanMode = useLanModeStore()
   const quickLinksLen = quickLinks.length
   const topSitesLen = topSites.length
   const result: QuickLinkDisplayItem[] = Array.from({ length: quickLinksLen + topSitesLen })
@@ -22,7 +23,7 @@ export function buildQuickLinkDisplayItems(
   for (let i = 0; i < quickLinksLen; i++) {
     const site = quickLinks[i]!
     result[i] = {
-      url: site.url,
+      url: lanMode.resolveLanLinkUrl(site),
       title: site.title,
       favicon: site.favicon,
       isPinned: true,
@@ -45,12 +46,13 @@ export function buildQuickLinkDisplayItems(
 }
 
 export function buildQuickLinkGroupItems(group: QuickLinkGroup): QuickLinkDisplayItem[] {
+  const lanMode = useLanModeStore()
   const result: QuickLinkDisplayItem[] = Array.from({ length: group.items.length })
 
   for (let i = 0, len = group.items.length; i < len; i++) {
     const item = group.items[i]!
     result[i] = {
-      url: item.url,
+      url: lanMode.resolveLanLinkUrl(item),
       title: item.title,
       favicon: item.favicon,
       isPinned: true,

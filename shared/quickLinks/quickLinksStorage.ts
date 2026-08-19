@@ -5,6 +5,8 @@ export interface QuickLink {
   url: string
   title: string
   favicon?: string
+  /** 内网链接：本地直连地址（如 http://192.168.1.5:8080）。存在即视为内网链接 */
+  localUrl?: string
 }
 
 export interface QuickLinkGroup {

@@ -67,6 +67,13 @@ export interface SettingsSchemaV11 extends Omit<
     borderRadius: number
   }
 
+  /** 内网链接智能选择：探针地址（空 = 未启用，内网链接一律走公网） */
+  probeUrl: string
+  /** 内网链接智能选择：探测超时（毫秒） */
+  probeTimeout: number
+  /** 内网链接智能选择：总开关（关闭后图标隐藏、添加弹窗不显示内网开关、已有内网链接一律走公网） */
+  lanModeEnabled: boolean
+
   perf: Omit<
     SettingsSchemaV10['perf'],
     'shortcut' | 'bookmark' | 'dialog' | 'searchBar' | 'yiyan' | 'actionBtns'

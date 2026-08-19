@@ -49,12 +49,39 @@ export function isSafeUrl(url: string) {
 }
 
 /**
+ * 校验是否为 http/https URL（含自动补全协议后解析）。
+ * 比 isValidUrl 更严格：排除 javascript:/file:/chrome:// 等 scheme，
+ * 用于内网地址、探针地址等会被浏览器打开或申请主机权限的场景，防止注入与非法权限请求。
+ */
+export function isHttpUrl(url: string) {
+  try {
+    const urlToCheck = url.includes('://') ? url : `http://${url}`
+    const parsed = new URL(urlToCheck)
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:'
+  } catch {
+    return false
+  }
+}
+
+/**
  * 格式化 URL，如果没有协议则自动补全 https://
  */
 export function formatUrl(url: string) {
   let finalUrl = url.trim()
   if (!finalUrl.includes('://')) {
     finalUrl = `https://${finalUrl}`
+  }
+  return finalUrl
+}
+
+/**
+ * 格式化 http/https URL，如果没有协议则自动补全 http://。
+ * 适用于内网地址/探针地址——局域网设备普遍是 http 服务，补 https 会因证书校验失败。
+ */
+export function formatHttpUrl(url: string) {
+  let finalUrl = url.trim()
+  if (!finalUrl.includes('://')) {
+    finalUrl = `http://${finalUrl}`
   }
   return finalUrl
 }

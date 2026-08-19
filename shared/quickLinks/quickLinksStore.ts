@@ -66,6 +66,7 @@ function toStorageQuickLink(item: QuickLink): QuickLink {
     title: item.title,
   }
   if (item.favicon !== undefined) quickLink.favicon = item.favicon
+  if (item.localUrl !== undefined && item.localUrl !== '') quickLink.localUrl = item.localUrl
   return quickLink
 }
 
@@ -79,7 +80,10 @@ function toStorageQuickLinkGroup(group: QuickLinkGroup): QuickLinkGroup {
 
 function isSameQuickLink(current: QuickLink, next: QuickLink): boolean {
   return (
-    current.url === next.url && current.title === next.title && current.favicon === next.favicon
+    current.url === next.url &&
+    current.title === next.title &&
+    current.favicon === next.favicon &&
+    (current.localUrl ?? '') === (next.localUrl ?? '')
   )
 }
 

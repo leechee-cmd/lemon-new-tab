@@ -15,12 +15,23 @@
     "nextPage": "Next page",
     "openActionsMenu": "Open page actions menu",
     "openBookmarks": "Open bookmarks",
+    "openLanModeMenu": "Open LAN/WAN address mode menu",
     "previousPage": "Previous page",
     "quickLinksGroups": "Quick Links groups",
     "quickLinksPagination": "Quick Links pagination",
     "refreshBackground": "Refresh background",
     "searchInput": "Search keywords",
     "searchSuggestions": "Search suggestions"
+  },
+  "lanMode": {
+    "auto": {
+      "away": "Use public address",
+      "home": "Use local address",
+      "label": "Auto",
+      "probing": "Probing…"
+    },
+    "forceLocal": "Force local",
+    "forceRemote": "Force remote"
   },
   "bookmark": {
     "404": "Nothing found",
@@ -165,6 +176,10 @@
     "addDialog": {
       "extensionIconTip": "You can also add the current page to Quick Links by clicking the icon in the browser extensions menu.",
       "invalidUrlError": "Invalid URL. Please input a new one",
+      "invalidLanUrlError": "Invalid local URL, please re-enter",
+      "lanLink": "LAN link",
+      "lanLinkTip": "Uses the local address at home and the public address above when away",
+      "localUrl": "Local address",
       "uploadFaviconAlert": "If you don't upload an icon, consider enabling Settings → Other → Icon cache to automatically fetch icons."
     },
     "addLink": "Add Link",

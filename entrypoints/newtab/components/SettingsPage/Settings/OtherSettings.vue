@@ -1,13 +1,16 @@
 <script setup lang="ts">
-import { ElCheckbox, ElLoading } from 'element-plus'
+import { ElCheckbox, ElLoading, ElMessage } from 'element-plus'
 import { useTranslation } from 'i18next-vue'
 import DeleteForeverOutlined from '~icons/ic/outline-delete-forever'
 import DownloadRound from '~icons/ic/round-download'
 import FileUploadRound from '~icons/ic/round-file-upload'
+import RadarRound from '~icons/ic/round-radar'
+
+import { browser } from '#imports'
 
 import { downloadJSON } from '@/shared/download'
 import { clearFaviconCache } from '@/shared/media'
-import { type QuickLinksData, useQuickLinksStore } from '@/shared/quickLinks'
+import { type QuickLinksData, useLanModeStore, useQuickLinksStore } from '@/shared/quickLinks'
 import { ensureSearchEngineAvailable } from '@/shared/searchEngines'
 import {
   type CURRENT_CONFIG_SCHEMA,
@@ -28,6 +31,7 @@ import {
   useCustomSearchEngineStore,
 } from '@newtab/shared/customSearchEngine'
 import { OPEN_SYNC_RETIREMENT } from '@newtab/shared/keys'
+import { formatHttpUrl, isHttpUrl } from '@newtab/shared/utils'
 import { wallpaperUrlCache } from '@newtab/shared/wallpaper'
 
 import SettingsSection from './SettingsSection.vue'
@@ -36,6 +40,7 @@ const { t, i18next } = useTranslation('settings')
 
 const settings = useSettingsStore()
 const quickLinks = useQuickLinksStore()
+const lanMode = useLanModeStore()
 const customSearchEngineStore = useCustomSearchEngineStore()
 const openSyncRetirement = inject(OPEN_SYNC_RETIREMENT, () => {})
 
@@ -88,7 +93,7 @@ async function confirmClearExtensionData() {
             ElCheckbox,
             {
               modelValue: includeSync.value,
-              'onUpdate:modelValue': (value: boolean) => (includeSync.value = value === true),
+              'onUpdate:modelValue': (value) => (includeSync.value = value === true),
             },
             () => t('other.purge.confirm.data.includeSync'),
           ),
@@ -383,6 +388,91 @@ function changeLanguage(lang: string) {
   i18next.changeLanguage(lang)
   currentLanguage.value = lang
 }
+
+// ---- 内网链接智能选择 ----
+const probeUrlInput = ref(settings.probeUrl)
+
+const probeStatusClass = computed(() => {
+  if (!settings.probeUrl?.trim()) return 'lan-mode__status-dot--idle'
+  if (lanMode.probeStatus === 'home') return 'lan-mode__status-dot--home'
+  if (lanMode.probeStatus === 'away') return 'lan-mode__status-dot--away'
+  return 'lan-mode__status-dot--idle'
+})
+
+const probeStatusText = computed(() => {
+  if (!settings.probeUrl?.trim()) return t('other.lanMode.statusNoProbe')
+  if (lanMode.probeStatus === 'home') return t('other.lanMode.statusHome')
+  if (lanMode.probeStatus === 'away') return t('other.lanMode.statusAway')
+  return t('other.lanMode.statusProbing')
+})
+
+/**
+ * 校验并格式化探针输入。返回 ''（清空）/ 格式化后的地址 / null（非法，已提示）。
+ * 探针仅允许 http/https：排除 file:/javascript: 等 scheme，避免非法权限请求与注入。
+ */
+function resolveProbeUrlInput(): string | null {
+  const raw = probeUrlInput.value.trim()
+  if (!raw) return ''
+  if (!isHttpUrl(raw)) {
+    ElMessage.error(t('other.lanMode.invalidUrl'))
+    return null
+  }
+  return formatHttpUrl(raw)
+}
+
+/**
+ * 保存探针地址。
+ * - blur 场景（无用户手势）：只校验 + 保存地址，不请求权限。
+ *   permissions.request 必须由用户手势触发（Chrome 官方要求），blur 会被直接拒绝且导致地址丢失。
+ * - 显式场景（回车 / 测试按钮，有用户手势）：校验 → 按探针 origin 申请最小主机权限 → 授权成功才保存。
+ * 已授权过的地址 request 不会重复弹框（Chrome 直接返回 granted）。
+ */
+async function ensureProbeUrlSaved(requestPermission = false): Promise<boolean> {
+  const url = resolveProbeUrlInput()
+  if (url === null) return false
+  if (!url) {
+    // 清空探针：直接保存空值并重置探测状态
+    settings.probeUrl = ''
+    lanMode.probeStatus = 'unknown'
+    await settings.save()
+    return true
+  }
+  if (requestPermission) {
+    let origin: string
+    try {
+      origin = new URL(url).origin
+    } catch {
+      ElMessage.error(t('other.lanMode.invalidUrl'))
+      return false
+    }
+    const granted = await browser.permissions.request({ origins: [`${origin}/*`] })
+    if (!granted) {
+      ElMessage.warning(t('other.lanMode.permissionDenied'))
+      return false
+    }
+  }
+  settings.probeUrl = url
+  await settings.save()
+  return true
+}
+
+async function saveProbeUrl(requestPermission = false) {
+  if (!(await ensureProbeUrlSaved(requestPermission))) return
+  if (settings.probeUrl) ElMessage.success(t('other.lanMode.saved'))
+  // 仅 auto 模式触发自动探测；force 模式跳过（无多余网络请求）
+  if (lanMode.mode === 'auto') void lanMode.probeOnce()
+}
+
+async function testProbeUrl() {
+  if (!(await ensureProbeUrlSaved(true))) return
+  if (lanMode.mode !== 'auto') {
+    ElMessage.info(t('other.lanMode.testForceHint'))
+    return
+  }
+  const result = await lanMode.probeOnce()
+  if (result === 'home') ElMessage.success(t('other.lanMode.testHome'))
+  else ElMessage.warning(t('other.lanMode.testAway'))
+}
 </script>
 
 <template>
@@ -423,6 +513,50 @@ function changeLanguage(lang: string) {
       <div class="settings__item settings__item--horizontal">
         <div class="settings__label">{{ t('newtab:changelog.hideMajor') }}</div>
         <el-switch v-model="settings.hideMajorChangelog" />
+      </div>
+      <div class="settings__divider"></div>
+      <div class="settings__item settings__item--horizontal settings__item--with-note settings-control-wide">
+        <div class="settings__label">{{ t('other.lanMode.enabled') }}</div>
+        <el-switch v-model="settings.lanModeEnabled" />
+        <p class="settings__item-note">{{ t('other.lanMode.intro') }}</p>
+      </div>
+      <div
+        v-if="settings.lanModeEnabled"
+        class="settings__item settings__item--horizontal settings__item--with-note settings-control-wide"
+      >
+        <div class="settings__label">{{ t('other.lanMode.probeUrl') }}</div>
+        <el-input
+          v-model="probeUrlInput"
+          size="default"
+          class="lan-mode__probe-url"
+          placeholder="http://192.168.1.1"
+          @keyup.enter="saveProbeUrl(true)"
+          @blur="saveProbeUrl()"
+        >
+          <template #suffix>
+            <el-tooltip :content="t('other.lanMode.test')" placement="top">
+              <button type="button" class="lan-mode__probe-test" @click="testProbeUrl">
+                <radar-round />
+              </button>
+            </el-tooltip>
+          </template>
+        </el-input>
+        <p class="settings__item-note lan-mode__status">
+          <span class="lan-mode__status-dot" :class="probeStatusClass"></span>
+          <span>{{ probeStatusText }}</span>
+        </p>
+      </div>
+      <div
+        v-if="settings.lanModeEnabled"
+        class="settings__item settings__item--horizontal settings__item--with-note settings-control-wide"
+      >
+        <div class="settings__label">{{ t('other.lanMode.probeTimeout') }}</div>
+        <el-input-number
+          v-model="settings.probeTimeout"
+          :min="500"
+          :max="10000"
+          :step="500"
+        />
       </div>
     </SettingsSection>
 
@@ -489,3 +623,57 @@ function changeLanguage(lang: string) {
     />
   </div>
 </template>
+
+<style lang="scss" scoped>
+.settings__divider {
+  height: 0;
+  grid-column: 1 / -1;
+  margin: 16px 0;
+  border-top: 1px solid var(--el-border-color-lighter);
+}
+
+.lan-mode__probe-url {
+  max-width: 320px;
+}
+
+.lan-mode__probe-test {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  color: var(--el-text-color-secondary);
+  background: none;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  transition: color var(--el-transition-duration-fast);
+
+  &:hover,
+  &:focus-visible {
+    color: var(--el-color-primary);
+  }
+}
+
+.lan-mode__status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lan-mode__status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--el-text-color-placeholder);
+
+  &--home {
+    background-color: var(--el-color-success);
+  }
+
+  &--away {
+    background-color: var(--el-color-warning);
+  }
+}
+</style>

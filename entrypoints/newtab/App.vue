@@ -19,6 +19,7 @@ import { isOnlyTouchDevice } from '@newtab/shared/touch'
 
 import BookmarkBtn from './components/ActionBtn/BookmarkBtn.vue'
 import DownloadBgBtn from './components/ActionBtn/DownloadBgBtn.vue'
+import LanModeBtn from './components/ActionBtn/LanModeBtn.vue'
 import RefreshBgBtn from './components/ActionBtn/RefreshBgBtn.vue'
 import SettingsBtn from './components/ActionBtn/SettingsBtn.vue'
 import Background from './components/Background.vue'
@@ -47,6 +48,8 @@ import { usePermission } from './composables/usePermission'
 import { useQuickLinksBootstrap } from './composables/useQuickLinksBootstrap'
 import { useRetiredCloudSync } from './composables/useRetiredCloudSync'
 import { useThemeWatcher } from './composables/useThemeWatcher'
+
+import { useLanModeStore } from '@/shared/quickLinks'
 
 const BackgroundRef = ref<InstanceType<typeof Background>>()
 const QuickLinksRef = ref<InstanceType<typeof QuickLinks>>()
@@ -97,6 +100,18 @@ const {
 
 // 主题/外观 watcher
 useThemeWatcher()
+
+// 内网链接智能选择：初始化连接方式并按配置探测（仅 auto 模式探测，force 模式跳过）
+const lanMode = useLanModeStore()
+void lanMode.init().then(() => {
+  if (settings.probeUrl?.trim() && lanMode.mode === 'auto') void lanMode.probeOnce()
+})
+watch(
+  () => settings.probeUrl,
+  (probeUrl) => {
+    if (probeUrl?.trim() && lanMode.mode === 'auto') void lanMode.probeOnce()
+  },
+)
 
 const { idle } = useIdle(5_000, {
   events: ['mousemove', 'mousedown', 'keydown', 'touchstart', 'wheel'],
@@ -300,6 +315,7 @@ function toggleMinimalMode() {
         @open-faq="showFaq"
         @open-background-switcher="showBackgroundSwitcher"
       />
+      <lan-mode-btn v-if="settings.lanModeEnabled" v-show="!minimalMode" />
       <bookmark-btn
         v-if="settings.bookmark.showBtn"
         v-show="!minimalMode"

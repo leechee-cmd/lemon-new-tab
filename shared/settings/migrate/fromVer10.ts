@@ -88,5 +88,9 @@ export function migrateFromVer10To11(old: SettingsSchemaV10): SettingsSchemaV11 
       },
     },
     version: 11,
+
+    probeUrl: defaultSettings.probeUrl,
+    probeTimeout: defaultSettings.probeTimeout,
+    lanModeEnabled: defaultSettings.lanModeEnabled,
   } satisfies SettingsSchemaV11
 }

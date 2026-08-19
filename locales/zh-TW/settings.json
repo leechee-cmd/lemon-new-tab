@@ -220,6 +220,23 @@
       "label": "圖示快取",
       "permissionDenied": "未獲得「存取所有網站」權限，圖示快取已保持關閉"
     },
+    "lanMode": {
+      "enabled": "啟用內網/外網位址模式",
+      "intro": "透過探測內網目標伺服器的連線能力，自動判斷目前位於內網或外網：可達時走內網直連位址，不可達時走公網位址。",
+      "invalidUrl": "無效的網址，請重新輸入~",
+      "permissionDenied": "未獲得該位址的存取權限，內網/外網位址模式已保持關閉",
+      "probeTimeout": "探測逾時（毫秒）",
+      "probeUrl": "探針位址",
+      "saved": "已儲存探針位址",
+      "statusAway": "本機位址不可達，內網連結將走公開位址",
+      "statusHome": "本機位址可達，內網連結將走本機位址",
+      "statusNoProbe": "未設定探針位址時，僅使用公開位址",
+      "statusProbing": "探測中…",
+      "test": "測試連線",
+      "testAway": "探測未通：本機位址不可達，內網連結將走公開位址",
+      "testForceHint": "目前為強制模式，不會自動探測；切換到「自動」後才會依網路環境選擇",
+      "testHome": "探測成功：本機位址可達，內網連結將走本機位址"
+    },
     "importExport": {
       "backup": "備份擴充功能設定",
       "export": "匯出",

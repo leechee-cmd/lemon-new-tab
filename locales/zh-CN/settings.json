@@ -220,6 +220,23 @@
       "label": "图标缓存",
       "permissionDenied": "未获得「访问所有网站」权限，图标缓存已保持关闭"
     },
+    "lanMode": {
+      "enabled": "启用内网/外网地址模式",
+      "intro": "通过探测内网目标服务器的连通性，自动判断当前处于内网还是外网：可达时走内网直连地址，不可达时走公网地址。",
+      "invalidUrl": "无效的地址，请重新输入~",
+      "permissionDenied": "未获得该地址的访问权限，内网/外网地址模式已保持关闭",
+      "probeTimeout": "探测超时（毫秒）",
+      "probeUrl": "内网探针地址",
+      "saved": "已保存探针地址",
+      "statusAway": "本地地址不可达，内网链接将走公网地址",
+      "statusHome": "本地地址可达，内网链接将走本地地址",
+      "statusNoProbe": "未设置探针地址时，仅使用公网地址",
+      "statusProbing": "探测中…",
+      "test": "测试连接",
+      "testAway": "探测未通：本地地址不可达，内网链接将走公网地址",
+      "testForceHint": "当前为强制模式，不会自动探测；切换到「自动」后才会按网络环境选择",
+      "testHome": "探测成功：本地地址可达，内网链接将走本地地址"
+    },
     "importExport": {
       "backup": "备份扩展设置",
       "export": "导出",

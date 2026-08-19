@@ -118,6 +118,10 @@ await import(workerUrl)`,
         origin: [defaultAllowedOrigins, /^(?:chrome|moz)-extension:\/\//],
       },
     },
+    optimizeDeps: {
+      // 禁用运行期依赖发现，避免 unplugin 按需导入在运行时引入新依赖触发整页 reload（白屏）
+      noDiscovery: true
+    },
     plugins: [
       Vue({
         include: [/\.vue$/, /\.md$/],

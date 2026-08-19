@@ -3,6 +3,7 @@ import i18next from 'i18next'
 import {
   DEFAULT_QUICK_LINK_GROUP_ID,
   useQuickLinksStore,
+  type QuickLink,
   type QuickLinkTarget,
 } from '@/shared/quickLinks'
 import { useSettingsStore } from '@/shared/settings'
@@ -21,7 +22,7 @@ export async function removeQuickLink(
 ) {
   const quickLink = store.getQuickLink(target)
   if (!quickLink) return
-  const { url, title, favicon } = quickLink
+  const { url, title, favicon, localUrl } = quickLink
 
   if (typeof target === 'number') {
     await store.removeFlatQuickLink(target)
@@ -41,15 +42,18 @@ export async function removeQuickLink(
         {
           style: { marginLeft: '20px', color: 'var(--el-color-primary)', cursor: 'pointer' },
           onClick: async () => {
+            const restored: QuickLink = { url, title, favicon }
+            // 恢复时必须带上 localUrl，否则内网链接撤销后内网属性丢失
+            if (localUrl) restored.localUrl = localUrl
             if (typeof target === 'number') {
               await store.insertFlatQuickLink({
-                quickLink: { url, title, favicon },
+                quickLink: restored,
                 index: target,
               })
             } else {
               await store.insertQuickLinkToGroup({
                 groupId: target.groupId,
-                quickLink: { url, title, favicon },
+                quickLink: restored,
                 index: target.index,
               })
             }

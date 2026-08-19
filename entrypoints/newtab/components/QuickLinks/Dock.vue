@@ -10,6 +10,7 @@ import AddRound from '~icons/ic/round-add'
 
 import {
   DEFAULT_QUICK_LINK_GROUP_ID,
+  useLanModeStore,
   useQuickLinksStore,
   type QuickLinkTarget,
 } from '@/shared/quickLinks'
@@ -40,6 +41,7 @@ const { t } = useTranslation()
 const focusStore = useFocusState()
 const settings = useSettingsStore()
 const quickLinksStore = useQuickLinksStore()
+const lanMode = useLanModeStore()
 
 const perf = usePerfClasses(() => ({
   transparent: settings.perf.quickLinks.transparent,
@@ -64,15 +66,20 @@ const dockTooltipClass = computed(
 const { updateMaxCols, maxFitCols } = useDockLayout()
 
 const refreshDebounced = useDebounceFn(refresh, 100)
-const quickLinks = computed(() =>
+// 原始链接（未做内网/公网解析），TopSites 去重必须基于原始 url，否则去重失效
+const rawQuickLinks = computed(() =>
   settings.quickLinks.grouping
     ? quickLinksStore.getDefaultGroupItems().slice()
     : quickLinksStore.items.slice(),
 )
+// 展示用链接：按内网链接智能选择解析后的地址
+const quickLinks = computed(() =>
+  rawQuickLinks.value.map((link) => ({ ...link, url: lanMode.resolveLanLinkUrl(link) })),
+)
 const topSites = computed(() =>
   settings.dock.topSites
     ? mergeTopSites(rawTopSites.value, {
-        quickLinks: quickLinks.value,
+        quickLinks: rawQuickLinks.value,
         noCap: true,
       })
     : [],

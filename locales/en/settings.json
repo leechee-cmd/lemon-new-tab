@@ -220,6 +220,23 @@
       "label": "Favicon Cache",
       "permissionDenied": "Permission \"Access all sites\" was not granted; favicon cache remains disabled"
     },
+    "lanMode": {
+      "enabled": "Enable LAN/WAN address mode",
+      "intro": "Automatically determines whether you are on the LAN or the public internet by probing the connectivity of an internal target server: reachable → use the local address; unreachable → use the public address.",
+      "invalidUrl": "Invalid URL, please re-enter",
+      "permissionDenied": "Host permission for this address was not granted; LAN/WAN address mode stays off",
+      "probeTimeout": "Probe timeout (ms)",
+      "probeUrl": "Probe address",
+      "saved": "Probe address saved",
+      "statusAway": "Local address unreachable — LAN links will use public addresses",
+      "statusHome": "Local address reachable — LAN links will use local addresses",
+      "statusNoProbe": "No probe address set — only the public address is used",
+      "statusProbing": "Probing…",
+      "test": "Test connection",
+      "testAway": "Probe failed: local address unreachable, LAN links will use public addresses",
+      "testForceHint": "Force mode is active and will not auto-probe; switch to \"Auto\" to select by network",
+      "testHome": "Probe OK: local address reachable, LAN links will use local addresses"
+    },
     "importExport": {
       "backup": "Back up extension settings",
       "export": "Export",

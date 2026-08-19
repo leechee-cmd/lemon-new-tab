@@ -268,6 +268,10 @@ export const defaultSettings = {
   readChangeLog: false,
   faviconCacheEnabled: false,
 
+  probeUrl: '',
+  probeTimeout: 2000,
+  lanModeEnabled: false,
+
   pluginVersion: '',
   version: CURRENT_CONFIG_VERSION,
 } satisfies CURRENT_CONFIG_SCHEMA

@@ -14,7 +14,7 @@ import { useSettingsStore } from '@/shared/settings'
 
 import { useFaviconUpload } from '@newtab/composables/useFaviconUpload'
 import { useImeAwareDialog } from '@newtab/composables/useImeAwareDialog'
-import { formatUrl, isValidUrl } from '@newtab/shared/utils'
+import { formatHttpUrl, formatUrl, isHttpUrl, isValidUrl } from '@newtab/shared/utils'
 
 const { t } = useTranslation()
 const { isComposing } = useImeAwareDialog()
@@ -42,7 +42,9 @@ const data: QuickLink = reactive({
   url: '',
   title: '',
   favicon: '',
+  localUrl: '',
 })
+const isLanLink = ref(false)
 
 const { beforeFaviconUpload, httpRequest } = useFaviconUpload()
 
@@ -54,7 +56,8 @@ const confirmLabel = computed(() => t(isEditing.value ? 'common.save' : 'common.
 
 function resetFields() {
   modelForm.value?.resetFields()
-  Object.assign(data, { url: '', title: '', favicon: '' })
+  Object.assign(data, { url: '', title: '', favicon: '', localUrl: '' })
+  isLanLink.value = false
   editingTarget.value = null
   addingGroupId.value = null
 }
@@ -76,7 +79,9 @@ function prepareEditDialog(targetRef: QuickLinkTarget) {
     url: target.url,
     title: target.title,
     favicon: target.favicon ?? '',
+    localUrl: target.localUrl ?? '',
   })
+  isLanLink.value = Boolean(target.localUrl)
 }
 
 watch(
@@ -95,10 +100,22 @@ async function submit() {
     return
   }
 
-  const quickLink = {
+  let localUrl: string | undefined
+  if (isLanLink.value) {
+    const localRaw = data.localUrl ?? ''
+    // 内网地址仅允许 http/https（排除 javascript:/file: 等 scheme）
+    if (!isHttpUrl(localRaw)) {
+      ElMessage.error(t('quickLinks.addDialog.invalidLanUrlError'))
+      return
+    }
+    localUrl = formatHttpUrl(localRaw)
+  }
+
+  const quickLink: QuickLink = {
     url: formatUrl(data.url),
     title: data.title.trim(),
     ...(!data.favicon ? {} : { favicon: data.favicon }),
+    ...(localUrl ? { localUrl } : {}),
   }
 
   if (isEditing.value && editingTarget.value !== null) {
@@ -155,6 +172,26 @@ async function cancel() {
       </el-form-item>
       <el-form-item :label="t('common.url')" label-position="top">
         <el-input v-model="data.url" size="large" @keyup.enter="submit" />
+      </el-form-item>
+      <el-form-item v-if="settings.lanModeEnabled" :label="t('quickLinks.addDialog.lanLink')" label-position="top">
+        <div class="lan-link__row">
+          <el-switch v-model="isLanLink" size="large" />
+          <el-input
+            v-if="isLanLink"
+            v-model="data.localUrl"
+            class="lan-link__input"
+            size="large"
+            :placeholder="t('quickLinks.addDialog.localUrl')"
+            @keyup.enter="submit"
+          />
+        </div>
+        <el-alert
+          v-if="isLanLink"
+          class="lan-link__tip"
+          show-icon
+          :closable="false"
+          :title="t('quickLinks.addDialog.lanLinkTip')"
+        />
       </el-form-item>
       <el-form-item :label="t('common.icon')" label-position="top">
         <div class="quick-links__favicon-uploader-container">
@@ -229,6 +266,22 @@ async function cancel() {
     .el-alert__title {
       line-height: 1.4;
     }
+  }
+
+  .lan-link__row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .lan-link__input {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .lan-link__tip {
+    margin-top: 8px;
   }
 }
 

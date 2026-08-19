@@ -26,6 +26,8 @@ const MIN_GLOBAL_BORDER_RADIUS = 0
 const MAX_GLOBAL_BORDER_RADIUS = 40
 const MIN_DOCK_BORDER_RADIUS = 0
 const MAX_DOCK_BORDER_RADIUS = 40
+const MIN_PROBE_TIMEOUT = 500
+const MAX_PROBE_TIMEOUT = 10000
 type PerfTransparencyKey =
   | 'bookmark'
   | 'dialog'
@@ -64,6 +66,10 @@ type MutableCurrentSettings = CURRENT_CONFIG_SCHEMA & {
   }
   dock?: CURRENT_CONFIG_SCHEMA['dock']
   perf?: CURRENT_CONFIG_SCHEMA['perf']
+  probeUrl?: unknown
+  probeTimeout?: unknown
+  lanModeEnabled?: unknown
+  lanModeShowBtn?: unknown
 }
 
 function clampInteger(value: unknown, fallback: number, min: number, max: number): number {
@@ -235,6 +241,21 @@ export function normalizeCurrentSettings(settings: CURRENT_CONFIG_SCHEMA): CURRE
   normalizePerfSurface(normalized.perf, 'quickLinks')
   normalizePerfSurface(normalized.perf, 'yiyan')
   normalizePerfSurface(normalized.perf, 'actionBtns')
+
+  normalized.probeUrl = typeof normalized.probeUrl === 'string' ? normalized.probeUrl : defaultSettings.probeUrl
+  normalized.probeTimeout = clampInteger(
+    normalized.probeTimeout,
+    defaultSettings.probeTimeout,
+    MIN_PROBE_TIMEOUT,
+    MAX_PROBE_TIMEOUT,
+  )
+  // 总开关：优先读新键 lanModeEnabled，兼容旧键 lanModeShowBtn（v11 曾用名）
+  normalized.lanModeEnabled = normalizeBoolean(
+    (normalized as { lanModeEnabled?: unknown }).lanModeEnabled ??
+      (normalized as { lanModeShowBtn?: unknown }).lanModeShowBtn,
+    defaultSettings.lanModeEnabled,
+  )
+  delete (normalized as { lanModeShowBtn?: unknown }).lanModeShowBtn
 
   return settings
 }

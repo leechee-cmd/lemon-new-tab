@@ -15,12 +15,23 @@
     "nextPage": "下一頁",
     "openActionsMenu": "開啟頁面操作選單",
     "openBookmarks": "開啟書籤",
+    "openLanModeMenu": "開啟內網/外網地址模式選單",
     "previousPage": "上一頁",
     "quickLinksGroups": "快速連結分組",
     "quickLinksPagination": "快速連結分頁",
     "refreshBackground": "重新整理背景",
     "searchInput": "搜尋關鍵字",
     "searchSuggestions": "搜尋建議"
+  },
+  "lanMode": {
+    "auto": {
+      "away": "走公網地址",
+      "home": "走本地地址",
+      "label": "自動",
+      "probing": "探測中"
+    },
+    "forceLocal": "強制本機",
+    "forceRemote": "強制公網"
   },
   "bookmark": {
     "404": "乜都搵唔到",
@@ -165,6 +176,10 @@
     "addDialog": {
       "extensionIconTip": "你亦可以透過點擊瀏覽器擴充功能選單中的圖示，將目前頁面加入快速連結。",
       "invalidUrlError": "網址無效，請重新輸入",
+      "invalidLanUrlError": "無效嘅本機位址，請重新輸入~",
+      "lanLink": "內網連結",
+      "lanLinkTip": "喺屋企時自動用本機位址，出網時自動用上面嘅公網位址",
+      "localUrl": "本機位址",
       "uploadFaviconAlert": "冇上載圖示時，建議開啟「設定-其他-圖示快取」以自動取得圖示"
     },
     "addLink": "新增連結",

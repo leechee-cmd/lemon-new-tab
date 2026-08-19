@@ -122,48 +122,57 @@ html.colorful .action-btn-container {
   .el-badge {
     display: block;
   }
+}
 
-  &__popper.el-popper {
-    --el-popper-border-radius: var(--le-action-btn-container-border-radius, 20px);
+// 设置菜单与内网模式菜单共用同一套下拉样式。
+// 注意：选择器必须平铺在顶层，不能嵌在 .setting-btn {} 内，否则 SCSS 会编译成错误的后代选择器。
+.setting-btn__popper.el-popper,
+.lan-mode-btn__popper.el-popper {
+  --el-popper-border-radius: var(--le-action-btn-container-border-radius, 20px);
 
-    .el-dropdown-menu {
-      padding: 8px;
-      background-color: transparent;
+  .el-dropdown-menu {
+    padding: 8px;
+    background-color: transparent;
+  }
+
+  .el-dropdown-menu__item {
+    padding: 5px 30px 5px 10px;
+    font-size: var(--el-font-size-extra-small);
+    border-radius: var(--le-action-btn-menu-item-border-radius, 12px);
+
+    .el-icon {
+      margin-right: 10px;
+      font-size: 16px;
     }
+  }
 
-    .el-dropdown-menu__item {
-      padding: 5px 30px 5px 10px;
-      font-size: var(--el-font-size-extra-small);
-      border-radius: var(--le-action-btn-menu-item-border-radius, 12px);
+  // 透明/模糊状态类通过属性选择器匹配，兼容 setting-btn 与 lan-mode-btn 两种前缀
+  &:not([class*='--opacity']) {
+    background-color: var(--setting-popper-background, var(--el-bg-color-overlay));
 
-      .el-icon {
-        margin-right: 10px;
-        font-size: 16px;
-      }
+    .el-dropdown-menu__item:hover {
+      background-color: var(
+        --setting-popper-item-hover-background,
+        var(--el-dropdown-menuItem-hover-fill)
+      );
     }
+  }
 
-    &:not(.setting-btn__popper--opacity) {
-      background-color: var(--setting-popper-background, var(--el-bg-color-overlay));
+  &[class*='--opacity'] {
+    background-color: var(--le-bg-color-overlay-action-btns-menu);
+  }
 
-      .el-dropdown-menu__item:hover {
-        background-color: var(
-          --setting-popper-item-hover-background,
-          var(--el-dropdown-menuItem-hover-fill)
-        );
-      }
-    }
-
-    &.setting-btn__popper--opacity {
-      background-color: var(--le-bg-color-overlay-action-btns-menu);
-    }
-
-    &.setting-btn__popper--blur {
-      @include acrylic.acrylic(var(--le-action-btns-menu-backdrop-blur, 10px));
-    }
+  &[class*='--blur'] {
+    @include acrylic.acrylic(var(--le-action-btns-menu-backdrop-blur, 10px));
   }
 }
 
 html.colorful .setting-btn__popper {
   --setting-popper-background: var(--el-color-primary-light-9);
   --setting-popper-item-hover-background: var(--el-color-primary-light-8);
+}
+
+// 内网模式菜单中选中项的对勾占位：未选中时隐藏但保留占位宽度，保证菜单项对齐
+.lan-mode__check--hidden {
+  visibility: hidden;
 }

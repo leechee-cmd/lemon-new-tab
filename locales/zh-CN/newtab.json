@@ -11,6 +11,7 @@
     "goToPage": "前往第 {{page}} 页",
     "main": "新标签页内容",
     "moveGroupDown": "下移分组 {{name}}",
+    "openLanModeMenu": "打开内网/外网地址模式菜单",
     "moveGroupUp": "上移分组 {{name}}",
     "nextPage": "下一页",
     "openActionsMenu": "打开页面操作菜单",
@@ -21,6 +22,16 @@
     "refreshBackground": "刷新背景",
     "searchInput": "搜索关键词",
     "searchSuggestions": "搜索建议"
+  },
+  "lanMode": {
+    "auto": {
+      "away": "走公网地址",
+      "home": "走本地地址",
+      "label": "自动",
+      "probing": "探测中"
+    },
+    "forceLocal": "强制本地",
+    "forceRemote": "强制公网"
   },
   "bookmark": {
     "404": "什么都没找到",
@@ -165,6 +176,10 @@
     "addDialog": {
       "extensionIconTip": "你也可以点击浏览器扩展菜单中的图标，将当前页面添加到快速导航。",
       "invalidUrlError": "无效的地址，请重新输入~",
+      "invalidLanUrlError": "无效的本地地址，请重新输入~",
+      "lanLink": "内网链接",
+      "lanLinkTip": "在家时自动使用本地地址，在外时自动使用上方公网地址",
+      "localUrl": "本地地址",
       "uploadFaviconAlert": "没有上传图标时建议打开「设置-其他-图标缓存」以自动获取图标"
     },
     "addLink": "添加链接",
