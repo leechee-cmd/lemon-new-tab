@@ -29,7 +29,9 @@ export function useYiYan() {
         return
       }
 
-      const { provider } = settings.yiyan
+      // 今日诗词接口在 Web 端受 CORS 限制，改用可直接访问的一言。
+      const provider =
+        settings.yiyan.provider === 'jinrishici' ? 'hitokoto' : settings.yiyan.provider
       const cache = await getYiyanCache()
       const canUseCache = cache?.provider === provider && Boolean(cache.res?.yiyan)
 

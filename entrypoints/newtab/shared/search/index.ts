@@ -7,7 +7,7 @@ import Google from '@newtab/assets/google.svg?skipsvgo'
 import Yandex from '@newtab/assets/yandex.svg?skipsvgo'
 import { useCustomSearchEngineStore } from '@newtab/shared/customSearchEngine'
 
-import { baiduSuggestParser, bingSuggestParser, googleSuggestParser } from './suggestParser'
+import { baiduSuggestParser, googleSuggestParser } from './suggestParser'
 
 export * from './suggestCache'
 export * from './suggestParser'
@@ -44,7 +44,6 @@ export const searchEngines = {
 export const searchSuggestAPIs = {
   google: { nameKey: 'newtab:search.engines.google', parser: googleSuggestParser },
   baidu: { nameKey: 'newtab:search.engines.baidu', parser: baiduSuggestParser },
-  bing: { nameKey: 'newtab:search.engines.bing', parser: bingSuggestParser },
 } as const
 
 /**

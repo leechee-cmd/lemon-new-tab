@@ -124,18 +124,6 @@ function applyActionBtnBorderRadius(value: number) {
   )
 }
 
-function applyBookmarkTransparency(value: number) {
-  setTransparencyVariable('bookmark', value)
-  applyDerivedTransparencyVariables(value, defaultSettings.perf.bookmark.transparency, [
-    { name: 'bookmark-menu', childDefaultValue: 30 },
-  ])
-}
-
-function applyBookmarkBackdropBlur(value: number) {
-  setBackdropBlurVariable('bookmark', value)
-  setBackdropBlurVariable('bookmark-menu', value)
-}
-
 function applyDialogTransparency(value: number) {
   setTransparencyVariable('dialog', value)
   applyDerivedTransparencyVariables(value, defaultSettings.perf.dialog.transparency, [
@@ -297,10 +285,6 @@ export function useThemeWatcher() {
   )
 
   const transparencyWatchers = [
-    {
-      source: () => getEnabledTransparency(settings.perf.bookmark),
-      apply: applyBookmarkTransparency,
-    },
     { source: () => getEnabledTransparency(settings.perf.dialog), apply: applyDialogTransparency },
     {
       source: () => getEnabledTransparency(settings.perf.searchBar),
@@ -318,10 +302,6 @@ export function useThemeWatcher() {
   ]
 
   const backdropBlurWatchers = [
-    {
-      source: () => getEnabledBackdropBlur(settings.perf.bookmark),
-      apply: applyBookmarkBackdropBlur,
-    },
     { source: () => getEnabledBackdropBlur(settings.perf.dialog), apply: applyDialogBackdropBlur },
     {
       source: () => getEnabledBackdropBlur(settings.perf.searchBar),

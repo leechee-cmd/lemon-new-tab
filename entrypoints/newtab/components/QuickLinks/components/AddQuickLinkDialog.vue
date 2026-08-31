@@ -270,8 +270,8 @@ async function cancel() {
 
   .lan-link__row {
     display: flex;
-    align-items: center;
     gap: 12px;
+    align-items: center;
     width: 100%;
   }
 

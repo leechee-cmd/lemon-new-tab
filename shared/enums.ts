@@ -10,7 +10,6 @@ export type OldBgType = 0 | 1 | 2 | 3
 export const BgType = {
   None: 'none',
   Local: 'local',
-  Bing: 'bing',
   Online: 'online',
 } as const
 export type BgType = (typeof BgType)[keyof typeof BgType]

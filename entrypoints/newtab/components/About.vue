@@ -7,8 +7,6 @@ import Edge from '~icons/fa6-brands/edge'
 import Firefox from '~icons/fa6-brands/firefox-browser'
 import Github from '~icons/fa6-brands/github'
 
-import { browser } from 'wxt/browser'
-
 import { version } from '@/package.json'
 
 import { useSettingsStore } from '@/shared/settings'
@@ -42,7 +40,7 @@ const currentYiyanProvider = computed(() => {
           <div class="ext-icon__container"></div>
         </a>
       </div>
-      <h1 class="ext-name">{{ browser.i18n.getMessage('extension_name') }}</h1>
+      <h1 class="ext-name">{{ t('newtab:title') }}</h1>
       <div class="ext-version">{{ version }}</div>
       <div v-if="currentYiyanProvider" class="yiyan-links">
         <i18next :translation="t('newtab:about.yiyanProvider')">

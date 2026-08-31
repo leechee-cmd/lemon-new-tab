@@ -15,7 +15,6 @@
     "moveGroupUp": "上移分组 {{name}}",
     "nextPage": "下一页",
     "openActionsMenu": "打开页面操作菜单",
-    "openBookmarks": "打开书签",
     "previousPage": "上一页",
     "quickLinksGroups": "快速导航分组",
     "quickLinksPagination": "快速导航分页",
@@ -34,30 +33,7 @@
     "forceRemote": "强制公网"
   },
   "bookmark": {
-    "404": "什么都没找到",
-    "addToQuickLinks": "添加到快速导航",
-    "added": "已添加到快速导航",
-    "collapse": {
-      "all": "折叠本层全部",
-      "other": "折叠同级其他项"
-    },
-    "delete": {
-      "confirm": "你确定要删除「{{name}}」吗？",
-      "confirmFolder": "「{{name}}」是一个目录，删除他会把其中所有书签一起删除，确定吗？",
-      "success": "已删除「 {{title}}」"
-    },
-    "expandHint": "请展开侧边栏以查看书签",
-    "moveError": "书签移动失败",
-    "sortBy": "排序方式",
-    "sortMode": {
-      "createdAsc": "由新到旧",
-      "createdDesc": "由旧到新",
-      "nameAsc": "名称由A到Z",
-      "nameDesc": "名称由Z到A",
-      "origin": "原始顺序"
-    },
-    "title": "书签",
-    "tooSmall": "侧边栏宽度过小"
+    "addToQuickLinks": "添加到快速导航"
   },
   "bootstrap": {
     "invalidVer": {
@@ -121,10 +97,6 @@
     "sponsor": "支持我们"
   },
   "notification": {
-    "bing": {
-      "message": "请检查开发者工具中的控制台提示。",
-      "title": "获取 Bing 壁纸失败"
-    },
     "faviconCacheHint": {
       "message": "可在「其他」设置中开启图标缓存，获得更快的图标加载速度",
       "title": "提示：图标缓存未开启"
@@ -183,11 +155,6 @@
       "uploadFaviconAlert": "没有上传图标时建议打开「设置-其他-图标缓存」以自动获取图标"
     },
     "addLink": "添加链接",
-    "bookmark": {
-      "add": "收藏到书签",
-      "existing": "该书签已存在",
-      "success": "已收藏到「{{folder}}」"
-    },
     "editLink": "编辑链接",
     "groups": {
       "default": "默认",
@@ -198,18 +165,11 @@
       "selectMoveTarget": "选择移动到哪个分组",
       "selectPinTarget": "选择保存到哪个分组",
       "selectTitle": "选择分组",
-      "topSites": "最常访问",
       "untitled": "分组 {{index}}"
     },
-    "hide": "隐藏",
     "moveError": "移动失败",
     "moveLeft": "左移",
     "moveRight": "右移",
-    "hideTopMessage": {
-      "content": "已隐藏该最常访问网站",
-      "restoreDefault": "恢复默认",
-      "restoreSuccess": "已恢复默认最常访问网站"
-    },
     "pin": "置顶",
     "unpin": "取消置顶",
     "unpinMessage": "已取消置顶该链接",

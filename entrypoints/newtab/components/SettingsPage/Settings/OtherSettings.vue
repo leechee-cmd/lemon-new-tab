@@ -6,8 +6,6 @@ import DownloadRound from '~icons/ic/round-download'
 import FileUploadRound from '~icons/ic/round-file-upload'
 import RadarRound from '~icons/ic/round-radar'
 
-import { browser } from '#imports'
-
 import { downloadJSON } from '@/shared/download'
 import { clearFaviconCache } from '@/shared/media'
 import { type QuickLinksData, useLanModeStore, useQuickLinksStore } from '@/shared/quickLinks'
@@ -22,15 +20,9 @@ import { clearExtensionData, reloadNewtabTabs } from '@/shared/settings/legacySe
 import { idbClearMany } from '@/shared/storage/idb'
 
 import {
-  PermissionContext,
-  PermissionResult,
-  usePermission,
-} from '@newtab/composables/usePermission'
-import {
   type CustomSearchEngineStorage,
   useCustomSearchEngineStore,
 } from '@newtab/shared/customSearchEngine'
-import { OPEN_SYNC_RETIREMENT } from '@newtab/shared/keys'
 import { formatHttpUrl, isHttpUrl } from '@newtab/shared/utils'
 import { wallpaperUrlCache } from '@newtab/shared/wallpaper'
 
@@ -42,25 +34,10 @@ const settings = useSettingsStore()
 const quickLinks = useQuickLinksStore()
 const lanMode = useLanModeStore()
 const customSearchEngineStore = useCustomSearchEngineStore()
-const openSyncRetirement = inject(OPEN_SYNC_RETIREMENT, () => {})
-
-const { checkAndRequestPermission } = usePermission()
 
 const beforeFaviconCacheChange = async (): Promise<boolean> => {
-  // 正在关闭 → 直接允许（不撤销 *://*/* 权限）
-  if (settings.faviconCacheEnabled) return true
-
-  // 正在开启 → 申请 *://*/* 权限
-  const result = await checkAndRequestPermission(
-    window.location.hostname,
-    true,
-    PermissionContext.FaviconCache,
-  )
-  const granted = result === PermissionResult.GrantedAll
-  if (!granted) {
-    ElMessage.warning(t('other.faviconCache.permissionDenied'))
-  }
-  return granted
+  // Web 端无主机权限语义，开启/关闭直接允许（favicon 走公共服务 + Image 探测兜底）。
+  return true
 }
 
 async function confirmAndRun(
@@ -170,7 +147,6 @@ async function clearWallpaperData() {
     settings.background.bgType = defaultSettings.background.bgType
     settings.background.local = { ...defaultSettings.background.local }
     settings.background.localDark = { ...defaultSettings.background.localDark }
-    settings.background.bing = { ...defaultSettings.background.bing }
     settings.background.online = {
       ...defaultSettings.background.online,
       cache: { ...defaultSettings.background.online.cache },
@@ -178,8 +154,8 @@ async function clearWallpaperData() {
   }
 
   await runClearAndReload(t('other.purge.confirm.wallpaper.purging'), async () => {
-    await idbClearMany(['wallpaper', 'wallpaperDark', 'wallpaperBing', 'onlineWallpaperCache'])
-    await wallpaperUrlCache.setValue({ light: '', dark: '', bing: '' })
+    await idbClearMany(['wallpaper', 'wallpaperDark', 'onlineWallpaperCache'])
+    await wallpaperUrlCache.setValue({ light: '', dark: '' })
     resetSettings()
     await settings.save()
   })
@@ -193,11 +169,6 @@ async function clearExtensionDataAndReload(includeSync: boolean) {
 
 async function clearIconCache() {
   await runClearAndReload(t('other.purge.confirm.icon.purging'), clearFaviconCache)
-}
-
-function beforeSyncChange(): boolean {
-  openSyncRetirement()
-  return false
 }
 
 const fileInput = useTemplateRef('fileInput')
@@ -261,8 +232,6 @@ function handleFileChange(event: Event) {
       throw new Error(t('other.importExport.versionMismatch'))
     }
 
-    const ignoredEnabledSync = data.settings?.sync?.enabled === true
-
     if (data.settings) {
       data.settings.background.local = settings.$state.background.local
       data.settings.background.localDark = data.settings.background.localDark || {
@@ -270,11 +239,9 @@ function handleFileChange(event: Event) {
         url: '',
         mediaType: undefined,
       }
-      data.settings.background.bing = settings.$state.background.bing
       data.settings.background.online.url = settings.$state.background.online.url
 
       const importedSettings = normalizeCurrentSettings(data.settings)
-      importedSettings.sync.enabled = false
       settings.$patch(importedSettings)
     }
 
@@ -293,8 +260,6 @@ function handleFileChange(event: Event) {
       settings.search,
       customSearchEngineStore.items.map((engine) => engine.id),
     )
-
-    if (ignoredEnabledSync) ElMessage.info(t('other.syncRetirement.importIgnored'))
   })
 }
 
@@ -422,12 +387,9 @@ function resolveProbeUrlInput(): string | null {
 
 /**
  * 保存探针地址。
- * - blur 场景（无用户手势）：只校验 + 保存地址，不请求权限。
- *   permissions.request 必须由用户手势触发（Chrome 官方要求），blur 会被直接拒绝且导致地址丢失。
- * - 显式场景（回车 / 测试按钮，有用户手势）：校验 → 按探针 origin 申请最小主机权限 → 授权成功才保存。
- * 已授权过的地址 request 不会重复弹框（Chrome 直接返回 granted）。
+ * Web 端无权限语义：直接校验并保存地址，不申请主机权限。
  */
-async function ensureProbeUrlSaved(requestPermission = false): Promise<boolean> {
+async function ensureProbeUrlSaved(): Promise<boolean> {
   const url = resolveProbeUrlInput()
   if (url === null) return false
   if (!url) {
@@ -437,34 +399,20 @@ async function ensureProbeUrlSaved(requestPermission = false): Promise<boolean> 
     await settings.save()
     return true
   }
-  if (requestPermission) {
-    let origin: string
-    try {
-      origin = new URL(url).origin
-    } catch {
-      ElMessage.error(t('other.lanMode.invalidUrl'))
-      return false
-    }
-    const granted = await browser.permissions.request({ origins: [`${origin}/*`] })
-    if (!granted) {
-      ElMessage.warning(t('other.lanMode.permissionDenied'))
-      return false
-    }
-  }
   settings.probeUrl = url
   await settings.save()
   return true
 }
 
-async function saveProbeUrl(requestPermission = false) {
-  if (!(await ensureProbeUrlSaved(requestPermission))) return
+async function saveProbeUrl() {
+  if (!(await ensureProbeUrlSaved())) return
   if (settings.probeUrl) ElMessage.success(t('other.lanMode.saved'))
   // 仅 auto 模式触发自动探测；force 模式跳过（无多余网络请求）
   if (lanMode.mode === 'auto') void lanMode.probeOnce()
 }
 
 async function testProbeUrl() {
-  if (!(await ensureProbeUrlSaved(true))) return
+  if (!(await ensureProbeUrlSaved())) return
   if (lanMode.mode !== 'auto') {
     ElMessage.info(t('other.lanMode.testForceHint'))
     return
@@ -483,15 +431,6 @@ async function testProbeUrl() {
       content-class="settings-control-grid"
       mobile-open
     >
-      <div
-        class="settings__item settings__item--horizontal settings__item--with-note settings-control-wide"
-      >
-        <div class="settings__label">{{ t('other.sync') }}</div>
-        <el-switch :model-value="false" :before-change="beforeSyncChange" />
-        <p class="settings__item-note">
-          {{ t('other.syncWarning') }}
-        </p>
-      </div>
       <div class="settings__item settings__item--horizontal">
         <div class="settings__label">{{ t('other.language') }}</div>
         <el-select
@@ -530,8 +469,8 @@ async function testProbeUrl() {
           size="default"
           class="lan-mode__probe-url"
           placeholder="http://192.168.1.1"
-          @keyup.enter="saveProbeUrl(true)"
-          @blur="saveProbeUrl()"
+          @keyup.enter="saveProbeUrl"
+          @blur="saveProbeUrl"
         >
           <template #suffix>
             <el-tooltip :content="t('other.lanMode.test')" placement="top">
@@ -626,8 +565,8 @@ async function testProbeUrl() {
 
 <style lang="scss" scoped>
 .settings__divider {
-  height: 0;
   grid-column: 1 / -1;
+  height: 0;
   margin: 16px 0;
   border-top: 1px solid var(--el-border-color-lighter);
 }
@@ -643,10 +582,10 @@ async function testProbeUrl() {
   padding: 0;
   margin: 0;
   color: var(--el-text-color-secondary);
+  cursor: pointer;
+  outline: none;
   background: none;
   border: none;
-  outline: none;
-  cursor: pointer;
   transition: color var(--el-transition-duration-fast);
 
   &:hover,
@@ -657,16 +596,16 @@ async function testProbeUrl() {
 
 .lan-mode__status {
   display: flex;
-  align-items: center;
   gap: 6px;
+  align-items: center;
 }
 
 .lan-mode__status-dot {
   display: inline-block;
   width: 8px;
   height: 8px;
-  border-radius: 50%;
   background-color: var(--el-text-color-placeholder);
+  border-radius: 50%;
 
   &--home {
     background-color: var(--el-color-success);

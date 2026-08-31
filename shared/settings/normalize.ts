@@ -6,7 +6,6 @@ import {
 
 import type { CURRENT_CONFIG_SCHEMA } from './current'
 import { defaultSettings } from './default'
-import type { BingWallpaperResolution } from './types'
 
 const MIN_TRANSPARENCY = 0
 const MAX_TRANSPARENCY = 95
@@ -29,7 +28,6 @@ const MAX_DOCK_BORDER_RADIUS = 40
 const MIN_PROBE_TIMEOUT = 500
 const MAX_PROBE_TIMEOUT = 10000
 type PerfTransparencyKey =
-  | 'bookmark'
   | 'dialog'
   | 'searchBar'
   | 'quickLinks'
@@ -44,9 +42,11 @@ type MutableCurrentSettings = CURRENT_CONFIG_SCHEMA & {
   }
   background?: CURRENT_CONFIG_SCHEMA['background'] & {
     showDownloadBtn?: unknown
-    bing?: Omit<CURRENT_CONFIG_SCHEMA['background']['bing'], 'resolution' | 'cachedResolution'> & {
-      resolution?: unknown
-      cachedResolution?: unknown
+    online?: CURRENT_CONFIG_SCHEMA['background']['online'] & {
+      source?: 'picsum' | 'peapix' | 'custom'
+      lastAutoRefresh?: number
+      autoRefresh?: boolean
+      previousUrl?: string
     }
   }
   clock?: Omit<CURRENT_CONFIG_SCHEMA['clock'], 'dateSize'> & {
@@ -86,10 +86,6 @@ function normalizeBuiltInEngineKeys(value: unknown, appendMissing: boolean) {
     ? value.filter(isBuiltInSearchEngineKey)
     : []
   return appendMissing ? normalizeBuiltInSearchEngineOrder(keys) : [...new Set(keys)]
-}
-
-function isBingWallpaperResolution(value: unknown): value is BingWallpaperResolution {
-  return value === '1080p' || value === 'uhd'
 }
 
 function normalizePerfSurface<K extends PerfTransparencyKey>(
@@ -133,7 +129,6 @@ export function normalizeCurrentSettings(settings: CURRENT_CONFIG_SCHEMA): CURRE
   const normalized = settings as MutableCurrentSettings
   normalized.theme ??= structuredClone(defaultSettings.theme)
   normalized.background ??= structuredClone(defaultSettings.background)
-  normalized.background.bing ??= structuredClone(defaultSettings.background.bing)
   normalized.clock ??= structuredClone(defaultSettings.clock)
   normalized.clock.style ??= structuredClone(defaultSettings.clock.style)
   normalized.search ??= structuredClone(defaultSettings.search)
@@ -151,20 +146,14 @@ export function normalizeCurrentSettings(settings: CURRENT_CONFIG_SCHEMA): CURRE
     normalized.background.showDownloadBtn,
     defaultSettings.background.showDownloadBtn,
   )
+  normalized.background.online.source ??= defaultSettings.background.online.source
+  normalized.background.online.lastAutoRefresh ??= defaultSettings.background.online.lastAutoRefresh
+  normalized.background.online.autoRefresh ??= defaultSettings.background.online.autoRefresh
+  normalized.background.online.previousUrl ??= defaultSettings.background.online.previousUrl
   normalized.layout.minimalModeOnDoubleClick = normalizeBoolean(
     normalized.layout.minimalModeOnDoubleClick,
     defaultSettings.layout.minimalModeOnDoubleClick,
   )
-
-  const { bing } = normalized.background
-  if (!isBingWallpaperResolution(bing.resolution)) {
-    bing.resolution = defaultSettings.background.bing.resolution
-  }
-  if (!bing.id) {
-    bing.cachedResolution = null
-  } else if (!isBingWallpaperResolution(bing.cachedResolution)) {
-    bing.cachedResolution = '1080p'
-  }
 
   normalized.clock.style.transparency = clampInteger(
     normalized.clock.style.transparency,
@@ -235,7 +224,6 @@ export function normalizeCurrentSettings(settings: CURRENT_CONFIG_SCHEMA): CURRE
     MAX_DOCK_BORDER_RADIUS,
   )
 
-  normalizePerfSurface(normalized.perf, 'bookmark')
   normalizePerfSurface(normalized.perf, 'dialog')
   normalizePerfSurface(normalized.perf, 'searchBar')
   normalizePerfSurface(normalized.perf, 'quickLinks')

@@ -4,17 +4,14 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "wxt",
-    "dev:firefox": "wxt -b firefox",
-    "dev:edge": "wxt -b edge",
-    "build": "vue-tsc --build && wxt build",
-    "build:firefox": "vue-tsc --build && wxt build -b firefox",
-    "build:edge": "vue-tsc --build && wxt build -b edge",
-    "zip": "wxt zip",
-    "zip:firefox": "wxt zip -b firefox",
-    "zip:edge": "wxt zip -b edge",
-    "postinstall": "wxt prepare",
-    "type-check": "vue-tsc --build",
+    "dev": "vite --config web/vite.config.ts",
+    "dev:web": "vite --config web/vite.config.ts",
+    "build": "vite build --config web/vite.config.ts",
+    "build:web": "vite build --config web/vite.config.ts",
+    "preview": "vite preview --config web/vite.config.ts",
+    "preview:web": "vite preview --config web/vite.config.ts",
+    "type-check": "vue-tsc -p tsconfig.web.json --noEmit",
+    "typecheck:web": "vue-tsc -p tsconfig.web.json --noEmit",
     "lint:oxlint": "oxlint . --fix -D correctness --ignore-path .gitignore",
     "lint:eslint": "eslint . --fix",
     "lint:style": "stylelint **/*.{css,scss,sass,less,vue,html} --fix --ignore-path .gitignore",
@@ -27,7 +24,6 @@
   },
   "dependencies": {
     "@dnd-kit/vue": "^0.5.0",
-    "@material/material-color-utilities": "^0.4.0",
     "@vueuse/components": "^14.4.0",
     "@vueuse/core": "^14.4.0",
     "dayjs": "^1.11.21",
@@ -38,8 +34,7 @@
     "i18next-vue": "^5.4.0",
     "idb": "^8.0.3",
     "pinia": "^4.0.2",
-    "vue": "rc",
-    "webextension-polyfill": "^0.12.0"
+    "vue": "rc"
   },
   "devDependencies": {
     "@iconify-json/ant-design": "^1.2.8",
@@ -47,13 +42,10 @@
     "@iconify-json/fa6-solid": "^1.2.4",
     "@iconify-json/fluent": "^1.2.54",
     "@iconify-json/ic": "^1.2.4",
-    "@types/chrome": "^0.2.5",
     "@types/node": "^26.1.2",
-    "@types/webextension-polyfill": "^0.12.5",
     "@vitejs/plugin-vue": "^6.0.8",
     "@vue/eslint-config-typescript": "^14.9.0",
     "@vue/tsconfig": "^0.9.1",
-    "@wxt-dev/webextension-polyfill": "^1.0.0",
     "eslint": "^10.8.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-oxlint": "^1.77.0",
@@ -79,8 +71,6 @@
     "vite": "^8.2.1",
     "vite-plugin-i18next-loader": "^4.1.0",
     "vite-svg-loader": "^5.1.1",
-    "vue-tsc": "^3.3.9",
-    "web-ext": "^10.6.0",
-    "wxt": "^0.21.3"
+    "vue-tsc": "^3.3.9"
   }
 }

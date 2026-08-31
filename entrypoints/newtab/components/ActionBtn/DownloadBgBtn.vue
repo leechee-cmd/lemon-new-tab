@@ -6,7 +6,7 @@ import { useTranslation } from 'i18next-vue'
 import { downloadBlob } from '@/shared/download'
 import { useSettingsStore } from '@/shared/settings'
 
-import { bingWallpaperURLGetter, getCachedOnlineWallpaper } from '@newtab/shared/wallpaper'
+import { getCachedOnlineWallpaper } from '@newtab/shared/wallpaper'
 
 const playing = ref(false)
 const canAnimation = ref(true)
@@ -67,15 +67,9 @@ async function downloadOnline() {
   downloadImageBlob(cached.blob)
 }
 
-function downloadBing() {
-  window.open(bingWallpaperURLGetter.uhdUrl.value, '_blank')
-}
-
 async function download() {
   if (settings.background.bgType === 'online') {
     await downloadOnline()
-  } else if (settings.background.bgType === 'bing') {
-    downloadBing()
   }
 }
 </script>

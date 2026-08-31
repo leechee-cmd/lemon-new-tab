@@ -6,7 +6,6 @@ import { useSettingsStore } from '@/shared/settings'
 import type { localBackground } from '@/shared/settings/types/type'
 
 import {
-  useBingWallpaperStorge,
   useDarkWallpaperStorge,
   useWallpaperStorge,
   wallpaperUrlCache,
@@ -17,32 +16,27 @@ export const useWallpaperUrlStore = defineStore('wallpaperUrl', () => {
 
   const lightUrl = ref('')
   const darkUrl = ref('')
-  const bingUrl = ref('')
   const requestVersion = {
     light: 0,
     dark: 0,
-    bing: 0,
-  } satisfies Record<'light' | 'dark' | 'bing', number>
+  } satisfies Record<'light' | 'dark', number>
   const resolvedBackgroundId = {
     light: '',
     dark: '',
-    bing: '',
-  } satisfies Record<'light' | 'dark' | 'bing', string>
+  } satisfies Record<'light' | 'dark', string>
 
-  const getTargetRef = (type: 'light' | 'dark' | 'bing') => {
+  const getTargetRef = (type: 'light' | 'dark') => {
     if (type === 'light') return lightUrl
-    if (type === 'dark') return darkUrl
-    return bingUrl
+    return darkUrl
   }
 
-  const currentBackgroundId = (type: 'light' | 'dark' | 'bing') => {
+  const currentBackgroundId = (type: 'light' | 'dark') => {
     if (type === 'light') return settings.background.local.id
-    if (type === 'dark') return settings.background.localDark.id
-    return settings.background.bing.id
+    return settings.background.localDark.id
   }
 
   const updateRef = (
-    type: 'light' | 'dark' | 'bing',
+    type: 'light' | 'dark',
     url: string,
     backgroundId = currentBackgroundId(type),
   ) => {
@@ -55,12 +49,11 @@ export const useWallpaperUrlStore = defineStore('wallpaperUrl', () => {
     resolvedBackgroundId[type] = url ? backgroundId : ''
   }
 
-  const getUrl = async (type: 'light' | 'dark' | 'bing'): Promise<Ref<string>> => {
+  const getUrl = async (type: 'light' | 'dark'): Promise<Ref<string>> => {
     const version = ++requestVersion[type]
     let background: localBackground
     if (type === 'light') background = settings.background.local
-    else if (type === 'dark') background = settings.background.localDark
-    else background = settings.background.bing
+    else background = settings.background.localDark
     const targetRef = getTargetRef(type)
     const expectedBackgroundId = background.id
     const isLatest = () =>
@@ -123,8 +116,6 @@ export const useWallpaperUrlStore = defineStore('wallpaperUrl', () => {
       file = await useWallpaperStorge.getItem<Blob>(background.id)
     } else if (type === 'dark') {
       file = await useDarkWallpaperStorge.getItem<Blob>(background.id)
-    } else if (type === 'bing') {
-      file = await useBingWallpaperStorge.getItem<Blob>(background.id)
     }
 
     if (file && isMediaFile(file)) {
@@ -149,7 +140,7 @@ export const useWallpaperUrlStore = defineStore('wallpaperUrl', () => {
     return targetRef
   }
 
-  const triggerRefresh = (type: 'light' | 'dark' | 'bing') => {
+  const triggerRefresh = (type: 'light' | 'dark') => {
     void getUrl(type).catch((error) => {
       console.error(`Failed to get ${type} wallpaper URL:`, error)
     })
@@ -163,12 +154,8 @@ export const useWallpaperUrlStore = defineStore('wallpaperUrl', () => {
     () => settings.background.localDark.id,
     () => triggerRefresh('dark'),
   )
-  watch(
-    () => settings.background.bing.id,
-    () => triggerRefresh('bing'),
-  )
 
-  const setUrl = async (type: 'light' | 'dark' | 'bing', url: string) => {
+  const setUrl = async (type: 'light' | 'dark', url: string) => {
     requestVersion[type] += 1
     const cache = await wallpaperUrlCache.getValue()
     // 如果有旧的 URL，先撤销
@@ -190,7 +177,7 @@ export const useWallpaperUrlStore = defineStore('wallpaperUrl', () => {
     updateRef(type, url)
   }
 
-  const clearUrl = async (type: 'light' | 'dark' | 'bing') => {
+  const clearUrl = async (type: 'light' | 'dark') => {
     requestVersion[type] += 1
     const cache = await wallpaperUrlCache.getValue()
     // 如果有旧的 URL，先撤销
@@ -203,5 +190,5 @@ export const useWallpaperUrlStore = defineStore('wallpaperUrl', () => {
     updateRef(type, '')
   }
 
-  return { getUrl, setUrl, clearUrl, lightUrl, darkUrl, bingUrl }
+  return { getUrl, setUrl, clearUrl, lightUrl, darkUrl }
 })

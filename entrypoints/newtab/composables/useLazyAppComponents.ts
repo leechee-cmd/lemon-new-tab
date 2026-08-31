@@ -14,15 +14,8 @@ export const SearchEnginesSwitcher = defineAsyncComponent(
 export const BackgroundSwitcher = defineAsyncComponent(
   () => import('../components/BackgroundSwitcher/index.vue'),
 )
-export const PermissionDialog = defineAsyncComponent(
-  () => import('../components/PermissionDialog.vue'),
-)
-export const Bookmark = defineAsyncComponent(() => import('../components/Bookmark/index.vue'))
 export const AddQuickLinkDialog = defineAsyncComponent(
   () => import('../components/QuickLinks/components/AddQuickLinkDialog.vue'),
-)
-export const SyncRetirementDialog = defineAsyncComponent(
-  () => import('../components/SyncRetirementDialog.vue'),
 )
 
 function createLazyDialogState() {
@@ -48,12 +41,10 @@ export function useLazyAppComponents() {
   const about = createLazyDialogState()
   const searchEnginesSwitcher = createLazyDialogState()
   const backgroundSwitcher = createLazyDialogState()
-  const bookmark = createLazyDialogState()
   const addQuickLinkDialog = createLazyDialogState()
   const quickLinkDialogRequest = shallowRef<
     { mode: 'add'; groupId?: string } | { mode: 'edit'; target: QuickLinkTarget } | null
   >(null)
-  const permissionDialogLoaded = ref(false)
 
   const openAddQuickLinkDialog = (groupId?: string) => {
     quickLinkDialogRequest.value = { mode: 'add', ...(groupId ? { groupId } : {}) }
@@ -77,19 +68,15 @@ export function useLazyAppComponents() {
     searchEnginesSwitcherVisible: searchEnginesSwitcher.visible,
     backgroundSwitcherMounted: backgroundSwitcher.mounted,
     backgroundSwitcherVisible: backgroundSwitcher.visible,
-    bookmarkMounted: bookmark.mounted,
-    bookmarkVisible: bookmark.visible,
     addQuickLinkDialogMounted: addQuickLinkDialog.mounted,
     addQuickLinkDialogVisible: addQuickLinkDialog.visible,
     quickLinkDialogRequest,
-    permissionDialogLoaded,
     toggleSettingsPage: settingsPage.toggle,
     showChangelog: changelog.show,
     showFaq: faq.show,
     toggleAbout: about.toggle,
     showSearchEnginesSwitcher: searchEnginesSwitcher.show,
     showBackgroundSwitcher: backgroundSwitcher.show,
-    showBookmark: bookmark.show,
     openAddQuickLinkDialog,
     openEditQuickLinkDialog,
   }

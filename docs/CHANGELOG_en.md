@@ -6,17 +6,24 @@
 
 ### New Features✨
 
+- **Wallpaper:** Added built-in online wallpaper sources (Lorem Picsum, Peapix) and custom image URLs.
+- **Wallpaper:** Added daily auto-rotation and manual refresh; the previous wallpaper is saved automatically and can be restored in one click.
+- **Wallpaper:** Redesigned the wallpaper preferences dialog with a large preview, a “swap image” button, and three categories — Online / Image URL / Local upload. Local files are uploaded directly through the preview.
 - **Clock:** Added a date-size control.
-- **Wallpaper:** Added an option to show or hide the download button for online/Bing wallpapers.
+- **Wallpaper:** Added an option to show or hide the online wallpaper download button.
 - **Page display:** Added double-clicking the blank background to toggle minimal mode.
 - **Page display:** Added an option to keep the clock and date visible while page elements fade when inactive.
 - **Search:** Added an option to disable search suggestions.
 - **Search:** Added an option to left-align search input text.
-- **Bookmarks:** When adding a bookmark to Quick Links, the current Quick Links group is selected by default.
 - **Settings:** Reorganized settings sections and appearance.
 
 ### Improvements⚡️
 
+- Converted to a pure web deployment: no extension installation required, just open it in a browser.
+- Removed Bing daily wallpaper; replaced with built-in online wallpaper sources.
+- Removed Monet dynamic theme color: unreliable on the web due to browser canvas cross-origin restrictions.
+- Removed browser bookmarks and Top Sites: web pages cannot access browser bookmarks.
+- **Search:** Removed Bing search suggestions since its API lacks CORS and is unusable on the web.
 - Removed experimental cloud sync because it could not reliably determine which data was newest. Local settings import/export remains available, together with a temporary cleanup path for old cloud data.
 - **Search:** Added a shortcut from the search-engine menu in the search box to Search Preferences.
 - **Quick Links:** In grouped mode, changed the Top Sites context-menu label from “Pin” to “Add to Quick Links”.
@@ -27,7 +34,6 @@
 ### Bug Fixes🐛
 
 - Fixed a failed local-wallpaper write potentially deleting the current wallpaper.
-- Fixed incomplete bookmark-search results caused by stale search caches.
 - Fixed Dock items jumping or appearing outside the first screen during initialization.
 - Fixed Quick Links icons occasionally showing stale icons or flickering when the URL changes.
 - Fixed incorrect clock and quote text colors in inverted-color mode.

@@ -1,20 +1,22 @@
-import { browser, storage } from '#imports'
+import { storage } from '#imports'
 
 export async function downloadLegacySettingsBackup() {
   const { downloadJSON } = await import('@/shared/download')
 
-  const settings = await browser.storage.local.get('settings')
-  const quickLinksData = await browser.storage.local.get(['quickLinks', 'bookmark'])
-  const customSearchEngine = await browser.storage.local.get('customSearchEngine')
+  const settings = await storage.getItem('local:settings')
+  const quickLinks = await storage.getItem('local:quickLinks')
+  const bookmark = await storage.getItem('local:bookmark')
+  const customSearchEngine = await storage.getItem('local:customSearchEngine')
 
   downloadJSON(
-    { ...settings, ...quickLinksData, ...customSearchEngine },
+    { settings, quickLinks, bookmark, customSearchEngine },
     `lemon-new-tab-backup-${new Date().toISOString()}.json`,
   )
 }
 
-/** 清除扩展持久化数据；默认保留历史云端数据，避免用户未选择时一并删除。 */
-export async function clearExtensionData({ includeSync = false }: { includeSync?: boolean } = {}) {
+/** 清除本地持久化数据。Web 端无云同步，仅清理本地存储与缓存。 */
+export async function clearExtensionData(options?: { includeSync?: boolean }) {
+  void options
   const { idbClearAll } = await import('@/shared/storage/idb')
 
   const tasks = [
@@ -24,26 +26,10 @@ export async function clearExtensionData({ includeSync = false }: { includeSync?
     storage.clear('local'),
     storage.clear('session'),
   ]
-  if (includeSync) tasks.push(storage.clear('sync'))
   await Promise.all(tasks)
 }
 
-const newtabUrls = new Set([
-  browser.runtime.getURL('/newtab.html'),
-  'chrome://newtab',
-  'chrome://newtab/',
-  'edge://newtab',
-  'edge://newtab/',
-])
-
-/** 重载所有已打开的新标签页；单个标签页失败不会阻断其他标签页。 */
+/** Web 端只存在当前标签页，重载行为由调用方以 location.reload() 兜底。 */
 export async function reloadNewtabTabs(): Promise<boolean> {
-  const tabs = await browser.tabs.query({})
-  const targetIds = tabs.flatMap(({ id, url }) =>
-    id !== undefined && url && newtabUrls.has(url) ? [id] : [],
-  )
-  const results = await Promise.allSettled(targetIds.map((id) => browser.tabs.reload(id)))
-  const failed = results.find((result) => result.status === 'rejected')
-  if (failed) throw failed.reason
-  return targetIds.length > 0
+  return false
 }

@@ -16,6 +16,8 @@ node_modules
 .output
 .wxt
 web-ext.config.ts
+dist-web
+.workbuddy/
 
 # Editor directories and files
 .vscode/*

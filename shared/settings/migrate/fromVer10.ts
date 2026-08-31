@@ -16,7 +16,7 @@ export function migrateFromVer10To11(old: SettingsSchemaV10): SettingsSchemaV11 
       showDownloadBtn: defaultSettings.background.showDownloadBtn,
       bing: {
         ...rest.background.bing,
-        resolution: defaultSettings.background.bing.resolution,
+        resolution: '1080p',
         cachedResolution: rest.background.bing.id ? '1080p' : null,
       },
     },
@@ -58,8 +58,8 @@ export function migrateFromVer10To11(old: SettingsSchemaV10): SettingsSchemaV11 
       ...restPerf,
       bookmark: {
         ...restPerf.bookmark,
-        transparency: defaultSettings.perf.bookmark.transparency,
-        blurIntensity: defaultSettings.perf.bookmark.blurIntensity,
+        transparency: 15,
+        blurIntensity: 10,
       },
       dialog: {
         ...restPerf.dialog,

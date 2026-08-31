@@ -1,4 +1,4 @@
-import { BgType, ClockWeight, DrawerDirection, SortMode } from '@/shared/enums'
+import { BgType, ClockWeight } from '@/shared/enums'
 import { BUILT_IN_SEARCH_ENGINE_KEYS } from '@/shared/searchEngines'
 
 import { type CURRENT_CONFIG_SCHEMA, CURRENT_CONFIG_VERSION } from './current'
@@ -7,7 +7,6 @@ export const defaultSettings = {
   theme: {
     primaryColor: '#f5b800',
     colorfulMode: false,
-    monetColor: false,
     idleHide: false,
     keepClockVisibleOnIdle: false,
   },
@@ -53,7 +52,7 @@ export const defaultSettings = {
     showIconAlways: false,
 
     suggestionsEnabled: true,
-    suggestionAPI: 'bing',
+    suggestionAPI: 'google',
     engine: 'bing',
     builtInEngineOrder: [...BUILT_IN_SEARCH_ENGINE_KEYS],
     hiddenBuiltInEngines: [],
@@ -72,7 +71,7 @@ export const defaultSettings = {
     borderRadius: 50,
   },
   background: {
-    bgType: BgType.Bing,
+    bgType: BgType.None,
     showDownloadBtn: true,
 
     vignette: false,
@@ -99,15 +98,12 @@ export const defaultSettings = {
       url: '',
       mediaType: undefined,
     },
-    bing: {
-      id: '',
-      url: '',
-      updateDate: '',
-      resolution: '1080p',
-      cachedResolution: null,
-    },
     online: {
       url: '',
+      source: 'custom',
+      lastAutoRefresh: 0,
+      autoRefresh: true,
+      previousUrl: '',
       cache: {
         enabled: false,
         duration: 1, // 默认缓存1小时
@@ -119,7 +115,6 @@ export const defaultSettings = {
   quickLinks: {
     enabled: true,
 
-    topSites: true,
     pinnedIcon: true,
     openInNewTab: false,
     paging: true,
@@ -159,7 +154,6 @@ export const defaultSettings = {
   dock: {
     enabled: false,
 
-    topSites: true,
     showOnSearchFocus: true,
     openInNewTab: false,
 
@@ -173,13 +167,8 @@ export const defaultSettings = {
 
     launchpad: {
       enabled: false,
-      topSites: true,
       openInNewTab: false,
     },
-  },
-
-  sync: {
-    enabled: false,
   },
 
   yiyan: {
@@ -201,12 +190,6 @@ export const defaultSettings = {
   perf: {
     bgSwitchAnim: true,
     dockScale: true,
-    bookmark: {
-      transparent: true,
-      transparency: 15,
-      blur: true,
-      blurIntensity: 10,
-    },
     dialog: {
       transparent: true,
       transparency: 15,
@@ -255,13 +238,6 @@ export const defaultSettings = {
     actionBtnBorderRadius: 50,
     globalBorderRadius: 20,
     minimalModeOnDoubleClick: false,
-  },
-
-  bookmark: {
-    direction: DrawerDirection.rtl,
-    rightClickToOpen: true,
-    showBtn: true,
-    defaultSortMode: SortMode.Original,
   },
 
   hideMajorChangelog: true,

@@ -6,7 +6,6 @@ import { version } from '@/package.json'
 import { i18n } from '@/shared/i18n'
 import { hydrateFaviconCache, setFaviconCacheEnabled } from '@/shared/media'
 import { useSettingsStore } from '@/shared/settings'
-import { applyStoredMonetColors, getMonetColors } from '@/shared/theme'
 
 import { colorMode, preferredDark } from '@newtab/shared/colorMode'
 import { useCustomSearchEngineStore } from '@newtab/shared/customSearchEngine'
@@ -61,14 +60,6 @@ export const main = async () => {
   // 清除 index.html 内联脚本设置的临时内联样式，让 CSS 变量接管
   document.documentElement.style.removeProperty('background-color')
   document.documentElement.style.removeProperty('color-scheme')
-
-  // 如果开启了莫奈模式，先应用之前存储的莫奈配色，避免加载壁纸期间的视觉跳变
-  if (settings.theme.monetColor) {
-    const storedColors = await getMonetColors()
-    if (storedColors) {
-      applyStoredMonetColors(storedColors)
-    }
-  }
 
   setupAutoSaveSettings(settings)
 

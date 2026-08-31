@@ -3,87 +3,36 @@
     "back": "返回上一層設定"
   },
   "background": {
-    "alwaysFresh": "永遠都有新鮮感",
-    "bingFrom": "圖片來源：Bing",
     "blur": "模糊程度",
-    "button": {
-      "bathe": {
-        "moon": "曬月亮",
-        "sun": "曬太陽"
-      }
-    },
     "cache": {
       "askEnable": {
         "message": "使用後會快取線上壁紙，減少重複載入，並可在離線時繼續顯示已快取的壁紙。是否使用？",
         "title": "使用壁紙快取？"
       },
-      "disabledTip": "僅在壁紙類型為「線上圖片」時可開啟（Bing 壁紙預設已快取）",
+      "disabledTip": "僅在壁紙類型為「線上圖片」時可開啟",
       "duration": "快取有效期",
       "label": "線上壁紙快取",
       "nextStartup": "將於下次啟動時生效",
       "noExpires": "快取永不過期"
     },
     "change": "更改背景",
-    "chooseImageOrVideo": "選擇你喜歡的圖片或影片作為壁紙",
-    "custom": "自訂",
     "fasterBgAnim": "啟動時更快地顯示背景",
     "mask": {
       "color": "遮罩顏色",
       "enable": "啟用遮罩"
     },
-    "myZoneMyRule": "你嘅地盤你話事",
-    "onlineTips": {
-      "a": "按下 Enter 鍵或點擊輸入框以外的區域以提交",
-      "b": "圖片快取策略取決於瀏覽器，離線時可能無法展示",
-      "c": "背景圖片載入前會短暫白屏，時間長短視乎你的網速",
-      "d": "請確認你使用的圖片 API 支援跨域請求，否則可能載入失敗"
-    },
     "parallax": "壁紙視差效果",
     "pauseWhenBlur": "失去焦點時暫停影片背景",
-    "permission": {
-      "allowAll": "允許所有網址",
-      "allowCurrent": "僅允許這個API網址",
-      "deny": "拒絕",
-      "request": {
-        "faviconCacheMessage": "為了啟用圖示快取，擴充功能需要「訪問所有網址」權限。",
-        "message": "為了取得線上圖片，擴充功能需要請求相應的訪問權限：",
-        "monetColorMessage": "為了啟用動態主題色（莫奈取色），擴充功能需要「訪問所有網址」權限。",
-        "subA": {
-          "content": "需要「訪問這個API網址」",
-          "label": "普通模式："
-        },
-        "subB": {
-          "content": "需要「訪問所有網站」",
-          "label": "動態主題色 / 壁紙快取："
-        },
-        "title": "權限請求",
-        "wallpaperCacheMessage": "為了啟用線上壁紙快取，擴充功能需要「訪問所有網址」權限。"
-      }
-    },
     "preferenceTitle": "壁紙偏好",
-    "resolution": "清晰度",
     "showDownloadBtn": "顯示下載按鈕",
-    "showDownloadBtnNote": "僅在使用必應桌布或線上桌布時提供下載功能",
-    "sunMoonSaying": "太陽出來我曬太陽，月亮出來我曬月亮",
-    "tip": "如果深色模式背景沒有選擇，會繼續使用淺色模式的圖片/影片",
+    "showDownloadBtnNote": "僅在使用線上桌布時提供下載功能",
     "title": "背景",
-    "today": "今日",
-    "type": {
-      "local": "本機圖片/影片",
-      "online": "線上圖片"
-    },
     "video": {
-      "blurTip": "啟用此開關可緩解同時開啟多個新分頁或多個視窗時的效能佔用",
-      "warning": "使用影片作為背景會大量消耗 GPU 資源，建議避免同時開多個新分頁，建議適當停用動效、模糊、透明效果以降低效能消耗"
+      "blurTip": "啟用此開關可緩解同時開啟多個新分頁或多個視窗時的效能佔用"
     },
     "vignette": "暗角效果",
     "warning": {
-      "bingResolutionCacheFailed": "未能快取所選清晰度，將繼續使用現有快取，稍後會重試。",
-      "cacheDisabled": "由於未授予「訪問所有網站」權限，無法安全快取線上壁紙，因此已停用「線上壁紙快取」。",
       "fileIsNotImage": "所選檔案並非圖片！",
-      "monetColorDisabled": "莫奈取色已關閉",
-      "monetDisabled": "由於未授予「訪問所有網站」權限，動態主題色（莫奈取色）已被關閉",
-      "notGranted": "尚未授權，無法載入背景圖片",
       "title": "警告",
       "tooLarge": {
         "message": "檔案過大（{{size}}），可能會影響效能或佔用較多空間，是否繼續？",
@@ -91,18 +40,29 @@
       },
       "unknownSource": "使用來自不明來源的圖片作背景可能會危及你的裝置安全，是否繼續？"
     },
-    "youLikeFine": "你喜歡就好~"
-  },
-  "bookmark": {
-    "defaultSort": "預設排序方式",
-    "direction": {
-      "ltr": "從左到右",
-      "rtl": "從右到左",
-      "title": "打開方向"
+    "preset": {
+      "picsum": "Lorem Picsum",
+      "peapix": "Peapix（今日必應）",
+      "applied": "已套用線上桌布預設。",
+      "fetchFailed": "取得預設桌布失敗，請稍後再試。",
+      "picsumDesc": "隨機攝影高品質來源",
+      "peapixDesc": "Bing 每日高清桌布"
     },
-    "rightClickToOpen": "右鍵背景打開",
-    "showBtn": "顯示右下角按鈕",
-    "title": "書籤欄"
+    "onlineLabel": "線上桌布",
+    "onlinePlaceholder": "https://example.com/image.jpg",
+    "localLabel": "本機上傳",
+    "autoRefresh": "每日自動更換線上桌布",
+    "autoRefreshNote": "預設圖源（Lorem Picsum / Peapix）每日自動更換一張新圖；自訂連結僅手動重新整理。",
+    "preferenceSubtitle": "自定背景圖片與桌布來源",
+    "swap": "換一張",
+    "cancel": "取消",
+    "apply": "套用桌布",
+    "tab": {
+      "curated": "線上精選",
+      "link": "圖片連結",
+      "local": "本機上傳"
+    },
+    "restorePrevious": "還原上一張"
   },
   "clock": {
     "blink": "閃爍時間分隔符",
@@ -147,31 +107,25 @@
     "openInNewTab": "在新分頁中開啟",
     "openInNewWindow": "在新視窗中開啟",
     "sections": {
-      "animation": "動畫",
       "appearance": "外觀",
       "behavior": "互動與行為",
       "danger": "清理資料",
       "data": "資料與復原",
       "display": "顯示與內容",
-      "effects": "透明與模糊",
       "general": "一般",
       "layout": "佈局與間距",
       "position": "頁面位置",
-      "quickActions": "快捷開關",
       "radius": "圓角",
       "source": "內容來源",
       "summary": {
-        "animation": "壁紙與介面動效",
         "appearance": "顏色、陰影與尺寸",
         "behavior": "互動方式與開啟行為",
         "danger": "不可逆操作，請謹慎使用",
         "data": "備份與快取",
         "display": "可見內容與呈現方式",
-        "effects": "逐項控制透明度和模糊",
         "general": "常用設定",
         "layout": "尺寸、數量與間距",
         "position": "主區域與功能按鈕",
-        "quickActions": "批次開啟或關閉效果",
         "radius": "集中調整各元件圓角",
         "source": "來源與自訂內容"
       }
@@ -217,14 +171,12 @@
   "other": {
     "faviconCache": {
       "description": "開啟後將圖示快取至本地，加快載入速度；需要「存取所有網站」權限",
-      "label": "圖示快取",
-      "permissionDenied": "未獲得「存取所有網站」權限，圖示快取已保持關閉"
+      "label": "圖示快取"
     },
     "lanMode": {
       "enabled": "啟用內網/外網地址模式",
       "intro": "透過探測內網目標伺服器的連線能力，自動判斷目前位於內網或外網：可達時走內網直連地址，不可達時走公網地址。",
       "invalidUrl": "無效嘅網址，請重新輸入~",
-      "permissionDenied": "未獲得該位址嘅存取權限，內網/外網地址模式已保持關閉",
       "probeTimeout": "探測逾時（毫秒）",
       "probeUrl": "探針位址",
       "saved": "已儲存探針位址",
@@ -284,25 +236,6 @@
       "icon": "清除圖示快取",
       "wallpaper": "清除壁紙快取"
     },
-    "sync": "雲端同步（已停止支援）",
-    "syncRetirement": {
-      "acknowledge": "好的",
-      "clearFailedMessage": "舊有雲端資料暫時未能刪除。我們不會再上載或套用這些資料，稍後重新啟動時會再次提醒你。",
-      "clearFailedTitle": "未能刪除雲端資料",
-      "clearCloudData": "清理雲端資料",
-      "clearSuccess": "舊有雲端資料已清除",
-      "downloadCloudData": "下載雲端資料",
-      "downloadFailed": "無法讀取或下載雲端資料，請稍後再試",
-      "downloadNote": "您可以下載目前的雲端資料，但該檔案無法重新匯入擴充功能。",
-      "downloadStarted": "雲端資料檔案已開始下載",
-      "importIgnored": "備份中的舊雲端同步選項已忽略，雲端同步仍保持關閉",
-      "message": "雲端同步有時可能以較舊的內容覆蓋目前設定。為了保護你的資料，這項功能已移除並自動關閉。目前裝置上的設定不受影響。",
-      "noCloudData": "找不到需要下載的雲端資料",
-      "residualMessage": "偵測到以前留下的雲端資料。你可以刪除它，目前裝置上的設定不受影響。",
-      "residualTitle": "發現舊有雲端資料",
-      "title": "雲端同步已停止支援"
-    },
-    "syncWarning": "此功能已移除。按一下開關可查看舊有雲端資料的處理說明。",
     "title": "其他"
   },
   "perf": {
@@ -313,10 +246,6 @@
     "bgSwitchAnim": "壁紙切換動效",
     "bgSwitchAnimTip": "關閉後切換壁紙時將不再有淡入淡出動效，能微弱提升切換速度。同時啟動時的壁紙動效也會被停用",
     "blurIntensity": "背景模糊度",
-    "bookmark": {
-      "blur": "書籤欄背景模糊",
-      "transparent": "書籤欄背景透明"
-    },
     "dialog": {
       "animation": "對話框動效",
       "blur": "對話框背景模糊",
@@ -372,8 +301,6 @@
     "paging": "啟用翻頁",
     "pagingLoop": "翻頁循環",
     "pinnedIcon": "顯示釘選圖示",
-    "restoreDefault": "還原隱藏的連結",
-    "restoreDefaultTitle": "確定還原預設快速連結？",
     "shadow": "顯示圖示陰影",
     "showOnSearchFocus": "搜尋框聚焦時顯示",
     "showTitle": "顯示標題",
@@ -446,14 +373,6 @@
       "dark": "深色模式",
       "light": "淺色模式",
       "system": "跟隨系統"
-    },
-    "monet": {
-      "askEnableCache": {
-        "message": "要使用動態主題色，需啟用線上壁紙快取。啟用快取將儲存來自這個網址的圖片。是否啟用？",
-        "title": "啟用壁紙快取？"
-      },
-      "desc": "源自 Material Design 3，從背景提取主題色。只支援圖片背景，配合「全局色彩」可獲得最佳視覺效果。",
-      "label": "動態主題色（莫奈取色）"
     },
     "primaryColor": "主題顏色",
     "title": "主題"

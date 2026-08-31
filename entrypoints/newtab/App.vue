@@ -1,23 +1,24 @@
 <script lang="ts" setup>
 import { useIdle } from '@vueuse/core'
 import { type StyleValue } from 'vue'
-
 import { useTranslation } from 'i18next-vue'
 
 import { BgType } from '@/shared/enums'
-import { DEFAULT_QUICK_LINK_GROUP_ID } from '@/shared/quickLinks'
+import { useLanModeStore } from '@/shared/quickLinks'
 import { defaultSettings, useSettingsStore } from '@/shared/settings'
 
 import {
   FOCUS_STATE,
-  GET_ACTIVE_QUICK_LINK_GROUP_ID,
   OPEN_BACKGROUND_PREFERENCE,
   OPEN_SEARCH_ENGINE_PREFERENCE,
   OPEN_SETTINGS,
 } from '@newtab/shared/keys'
 import { isOnlyTouchDevice } from '@newtab/shared/touch'
+import {
+  isOnlineWallpaperAutoRefreshDue,
+  refreshOnlineWallpaper,
+} from '@newtab/shared/wallpaper/onlineRefresh'
 
-import BookmarkBtn from './components/ActionBtn/BookmarkBtn.vue'
 import DownloadBgBtn from './components/ActionBtn/DownloadBgBtn.vue'
 import LanModeBtn from './components/ActionBtn/LanModeBtn.vue'
 import RefreshBgBtn from './components/ActionBtn/RefreshBgBtn.vue'
@@ -35,27 +36,43 @@ import {
   AboutComp,
   AddQuickLinkDialog,
   BackgroundSwitcher,
-  Bookmark,
   Changelog,
   Faq,
-  PermissionDialog,
   SearchEnginesSwitcher,
   SettingsPage,
-  SyncRetirementDialog,
   useLazyAppComponents,
 } from './composables/useLazyAppComponents'
-import { usePermission } from './composables/usePermission'
 import { useQuickLinksBootstrap } from './composables/useQuickLinksBootstrap'
-import { useRetiredCloudSync } from './composables/useRetiredCloudSync'
 import { useThemeWatcher } from './composables/useThemeWatcher'
-
-import { useLanModeStore } from '@/shared/quickLinks'
 
 const BackgroundRef = ref<InstanceType<typeof Background>>()
 const QuickLinksRef = ref<InstanceType<typeof QuickLinks>>()
 const DockRef = ref<InstanceType<typeof Dock>>()
 const { t } = useTranslation()
 
+async function handleRefreshBackground() {
+  try {
+    const result = await refreshOnlineWallpaper()
+    // 'applied'：已更新 online.url，Background 会监听变化自动重载背景。
+    if (result === 'reload') BackgroundRef.value?.refreshBackground()
+  } catch (error) {
+    console.error('[background] Failed to refresh online wallpaper:', error)
+    BackgroundRef.value?.refreshBackground()
+  }
+}
+
+let autoRefreshTimer: ReturnType<typeof setInterval> | null = null
+onMounted(() => {
+  const tick = () => {
+    if (!isOnlineWallpaperAutoRefreshDue()) return
+    void handleRefreshBackground()
+  }
+  tick()
+  autoRefreshTimer = setInterval(tick, 60_000)
+})
+onBeforeUnmount(() => {
+  if (autoRefreshTimer) clearInterval(autoRefreshTimer)
+})
 const {
   settingsPageMounted,
   settingsPageVisible,
@@ -69,19 +86,15 @@ const {
   searchEnginesSwitcherVisible,
   backgroundSwitcherMounted,
   backgroundSwitcherVisible,
-  bookmarkMounted,
-  bookmarkVisible,
   addQuickLinkDialogMounted,
   addQuickLinkDialogVisible,
   quickLinkDialogRequest,
-  permissionDialogLoaded,
   toggleSettingsPage,
   showChangelog,
   showFaq,
   toggleAbout,
   showSearchEnginesSwitcher,
   showBackgroundSwitcher,
-  showBookmark,
   openAddQuickLinkDialog,
   openEditQuickLinkDialog,
 } = useLazyAppComponents()
@@ -90,13 +103,6 @@ const elLocale = useElementLang()
 const settings = useSettingsStore()
 const { quickLinksReady } = useQuickLinksBootstrap()
 const minimalMode = ref(false)
-const {
-  dialogLoaded: syncRetirementDialogLoaded,
-  dialogVisible: syncRetirementDialogVisible,
-  dialogAcknowledgementOnly: syncRetirementDialogAcknowledgementOnly,
-  downloadCloudData,
-  deleteCloudData,
-} = useRetiredCloudSync()
 
 // 主题/外观 watcher
 useThemeWatcher()
@@ -147,39 +153,13 @@ watch(
   },
 )
 
-function openBookmarkSidebar() {
-  if (settings.bookmark.rightClickToOpen) {
-    void showBookmark()
-  }
-}
-
-const {
-  permissionDialogVisible,
-  currentHostname,
-  currentOnlyAll,
-  currentContext,
-  onPermissionDialogResult,
-} = usePermission()
-
 provide(FOCUS_STATE, createFocusState())
 provide(OPEN_SETTINGS, toggleSettingsPage)
 provide(OPEN_SEARCH_ENGINE_PREFERENCE, showSearchEnginesSwitcher)
 provide(OPEN_BACKGROUND_PREFERENCE, showBackgroundSwitcher)
-provide(
-  GET_ACTIVE_QUICK_LINK_GROUP_ID,
-  () => QuickLinksRef.value?.getActiveGroupId() ?? DEFAULT_QUICK_LINK_GROUP_ID,
-)
 
 // 应用级通知（欢迎、缓存提示、版本更新）
 useAppNotifications(showChangelog)
-
-watch(
-  permissionDialogVisible,
-  (visible) => {
-    if (visible) permissionDialogLoaded.value = true
-  },
-  { immediate: true },
-)
 
 // Dock 占用底部空间时，将操作按钮位置同步为对应的顶部位置，保证渲染与持久化设置一致。
 watch(
@@ -271,7 +251,6 @@ function toggleMinimalMode() {
       class="app"
       :class="mainClass"
       :aria-label="t('a11y.main')"
-      @contextmenu.prevent="openBookmarkSidebar"
       @dblclick.self="toggleMinimalMode"
     >
       <clock v-if="settings.clock.enabled" @contextmenu.stop />
@@ -316,21 +295,13 @@ function toggleMinimalMode() {
         @open-background-switcher="showBackgroundSwitcher"
       />
       <lan-mode-btn v-if="settings.lanModeEnabled" v-show="!minimalMode" />
-      <bookmark-btn
-        v-if="settings.bookmark.showBtn"
-        v-show="!minimalMode"
-        @open-bookmark-sidebar="showBookmark"
-      />
       <refresh-bg-btn
         v-if="settings.background.bgType === BgType.Online"
         v-show="!minimalMode"
-        @refresh-background="BackgroundRef?.refreshBackground"
+        @refresh-background="handleRefreshBackground"
       ></refresh-bg-btn>
       <download-bg-btn
-        v-if="
-          settings.background.showDownloadBtn &&
-          ([BgType.Bing, BgType.Online] as BgType[]).includes(settings.background.bgType)
-        "
+        v-if="settings.background.showDownloadBtn && settings.background.bgType === BgType.Online"
         v-show="!minimalMode"
       ></download-bg-btn>
     </div>
@@ -343,27 +314,11 @@ function toggleMinimalMode() {
       v-model="searchEnginesSwitcherVisible"
     />
     <background-switcher v-if="backgroundSwitcherMounted" v-model="backgroundSwitcherVisible" />
-    <bookmark v-if="bookmarkMounted" v-model="bookmarkVisible" />
     <add-quick-link-dialog
       v-if="addQuickLinkDialogMounted"
       v-model="addQuickLinkDialogVisible"
       :request="quickLinkDialogRequest"
       @saved="refreshQuickLinks"
-    />
-    <permission-dialog
-      v-if="permissionDialogLoaded"
-      v-model="permissionDialogVisible"
-      :hostname="currentHostname"
-      :only-all="currentOnlyAll"
-      :context="currentContext"
-      @result="onPermissionDialogResult"
-    />
-    <sync-retirement-dialog
-      v-if="syncRetirementDialogLoaded"
-      v-model="syncRetirementDialogVisible"
-      :acknowledgement-only="syncRetirementDialogAcknowledgementOnly"
-      @download="downloadCloudData"
-      @delete="deleteCloudData"
     />
   </el-config-provider>
 </template>

@@ -1,35 +1,4 @@
-import { enhancedFetch } from '@/shared/network/fetch'
 import fetchJsonp from '@/shared/network/fetchJsonp'
-
-interface BingSuggestItem {
-  Txt: string
-  Type: string
-  Sk: string
-  HCS?: number
-}
-
-interface BingSuggest {
-  AS: {
-    Query: string
-    FullResults: number
-    Results: [
-      {
-        Type: string
-        Suggests: BingSuggestItem[]
-      },
-    ]
-  }
-}
-
-async function bingSuggestParser(text: string, signal?: AbortSignal): Promise<string[]> {
-  const url = `https://api.bing.com/qsonhs.aspx?q=${encodeURIComponent(text)}`
-  const resp: BingSuggest = await enhancedFetch(url, { signal })
-
-  if (resp.AS.FullResults <= 0) {
-    return []
-  }
-  return resp.AS.Results[0].Suggests.map((s) => s.Txt)
-}
 
 function baiduJsonpParser(text: string): string[] {
   const match = /\[.*\]/.exec(text)
@@ -41,15 +10,16 @@ function baiduJsonpParser(text: string): string[] {
 
 async function baiduSuggestParser(text: string, signal?: AbortSignal): Promise<string[]> {
   const url = `https://suggestion.baidu.com/su?wd=${encodeURIComponent(text)}&cb=window.baidu.sug`
-  const suggestions = await fetchJsonp({
+  const raw = await fetchJsonp({
     url,
     params: {},
     callbackParam: 'cb',
     callbackName: 'window.baidu.sug',
-    parser: baiduJsonpParser,
     encoding: 'gbk', // 百度搜索建议 API 使用 GBK 编码
     signal,
   })
+
+  const suggestions = baiduJsonpParser(raw)
 
   if (suggestions[0] === text) {
     return suggestions.slice(1)
@@ -77,9 +47,18 @@ interface GoogleSuggest {
 }
 
 async function googleSuggestParser(text: string, signal?: AbortSignal): Promise<string[]> {
-  const url = `https://suggestqueries.google.com/complete/search?client=chrome&q=${encodeURIComponent(text)}`
-  const resp: GoogleSuggest = await enhancedFetch(url, { signal })
-  return resp[1]
+  const base = `https://suggestqueries.google.com/complete/search?client=chrome&q=${encodeURIComponent(text)}`
+
+  // Web 端无 CORS，走 script-tag JSONP。
+  const raw = await fetchJsonp({
+    url: base,
+    params: { client: 'chrome', q: text },
+    callbackParam: 'callback',
+    callbackName: '__leetab_sug',
+    signal,
+  })
+  const parsed = JSON.parse(raw) as GoogleSuggest
+  return parsed[1]
 }
 
-export { baiduSuggestParser, bingSuggestParser, googleSuggestParser }
+export { baiduSuggestParser, googleSuggestParser }

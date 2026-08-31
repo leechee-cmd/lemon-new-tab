@@ -4,10 +4,13 @@ import { type CURRENT_CONFIG_SCHEMA, CURRENT_CONFIG_VERSION } from './current'
 import { defaultSettings } from './default'
 import { migrateSettingsOneVersion, type MigratableSettings } from './migrateToCurrent'
 import type {
-  SettingsSchemaV10,
   SettingsSchemaV7,
   SettingsSchemaV8,
   SettingsSchemaV9,
+  SettingsSchemaV10,
+  SettingsSchemaV11,
+  SettingsSchemaV12,
+  SettingsSchemaV13,
 } from './types'
 
 // 合并重复的迁移逻辑，通过辅助函数创建迁移函数
@@ -34,6 +37,9 @@ export const settingsStorage = storage.defineItem<CURRENT_CONFIG_SCHEMA>('local:
     8: createMigration<SettingsSchemaV7, SettingsSchemaV8>(7),
     9: createMigration<SettingsSchemaV8, SettingsSchemaV9>(8),
     10: createMigration<SettingsSchemaV9, SettingsSchemaV10>(9),
-    11: createMigration<SettingsSchemaV10, CURRENT_CONFIG_SCHEMA>(10),
+    11: createMigration<SettingsSchemaV10, SettingsSchemaV11>(10),
+    12: createMigration<SettingsSchemaV11, SettingsSchemaV12>(11),
+    13: createMigration<SettingsSchemaV12, SettingsSchemaV13>(12),
+    14: createMigration<SettingsSchemaV13, CURRENT_CONFIG_SCHEMA>(13),
   },
 })

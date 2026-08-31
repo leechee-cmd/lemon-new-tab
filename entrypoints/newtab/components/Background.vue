@@ -9,18 +9,12 @@ import {
 } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 
-import i18next from 'i18next'
-
-import { browser } from '#imports'
-
 import { BgType } from '@/shared/enums'
 import { useSettingsStore } from '@/shared/settings'
 
-import { useBackgroundMonet } from '@newtab/composables/useBackgroundMonet'
 import { useFocusState } from '@newtab/composables/useFocus'
 import { isOnlyTouchDevice } from '@newtab/shared/touch'
 import {
-  bingWallpaperURLGetter,
   cacheOnlineWallpaper,
   clearAllOnlineWallpaperCache,
   getCachedOnlineWallpaper,
@@ -41,17 +35,15 @@ if (settings.background.fastAnimation) {
 }
 
 const wallpaperUrlStore = useWallpaperUrlStore()
-const { lightUrl, darkUrl, bingUrl } = storeToRefs(wallpaperUrlStore)
+const { lightUrl, darkUrl } = storeToRefs(wallpaperUrlStore)
 const activeLocalUrl = computed(() =>
   isDark.value && settings.background.localDark.id ? darkUrl.value : lightUrl.value,
 )
 const isSwitching = ref(true)
 
-const imageRef = useTemplateRef('imageRef')
 const videoRef = useTemplateRef('videoRef')
 const bgURL = ref<string>('')
 const lastBlobUrl = ref<string>('')
-const activeMonetSourceKey = ref('')
 
 function revokeLastBlobUrl() {
   if (lastBlobUrl.value) {
@@ -173,22 +165,6 @@ const isVideoWallpaper = computed(() => {
 
 // 壁纸更新相关逻辑
 
-function getLocalMonetSourceKey() {
-  if (isDark.value && settings.background.localDark.id) {
-    return `local:dark:${settings.background.localDark.id}`
-  }
-  return settings.background.local.id ? `local:light:${settings.background.local.id}` : ''
-}
-
-function getBingMonetSourceKey() {
-  const bing = settings.background.bing
-  return bing.id ? `bing:${bing.id}:${bing.updateDate}` : ''
-}
-
-function getOnlineMonetSourceKey(rawUrl: string, timestamp: number | 'raw') {
-  return rawUrl ? `online:${rawUrl}:${timestamp}` : ''
-}
-
 type CachedOnlineWallpaper = NonNullable<Awaited<ReturnType<typeof getCachedOnlineWallpaper>>>
 
 function isOnlineWallpaperCacheValid(cached: CachedOnlineWallpaper | null, now: number) {
@@ -200,30 +176,19 @@ function isOnlineWallpaperCacheValid(cached: CachedOnlineWallpaper | null, now: 
 
 type BackgroundSource = {
   url: string
-  sourceKey: string
   ownedObjectUrl: boolean
 }
 
 function createOnlineWallpaperBlobUrl(
-  rawUrl: string,
   cached: CachedOnlineWallpaper,
 ): BackgroundSource {
   return {
     url: URL.createObjectURL(cached.blob),
-    sourceKey: getOnlineMonetSourceKey(rawUrl, cached.timestamp),
     ownedObjectUrl: true,
   }
 }
 
 const bgTypeProviders: Record<BgType, () => Promise<BackgroundSource>> = {
-  [BgType.Bing]: async () => {
-    await bingWallpaperURLGetter.init()
-    return {
-      url: bingUrl.value,
-      sourceKey: getBingMonetSourceKey(),
-      ownedObjectUrl: false,
-    }
-  },
   [BgType.Local]: async () => {
     const target = isDark.value && settings.background.localDark.id ? 'dark' : 'light'
     const targetUrl = target === 'dark' ? darkUrl : lightUrl
@@ -232,34 +197,32 @@ const bgTypeProviders: Record<BgType, () => Promise<BackgroundSource>> = {
     if (!targetUrl.value) await wallpaperUrlStore.getUrl(target)
     return {
       url: targetUrl.value,
-      sourceKey: getLocalMonetSourceKey(),
       ownedObjectUrl: false,
     }
   },
   [BgType.Online]: async () => {
     const rawUrl = settings.background.online.url
     if (!rawUrl) {
-      return { url: '', sourceKey: '', ownedObjectUrl: false }
+      return { url: '', ownedObjectUrl: false }
     }
 
-    // 如果没有开启缓存且没有开启莫奈，直接返回原始URL
-    if (!settings.background.online.cache.enabled && !settings.theme.monetColor) {
+    // Peapix 图床（img.peapix.com）不带 CORS 头，fetch 必然失败；
+    // 直接使用原始 URL 展示，避免无谓的缓存尝试与控制台报错。
+    if (
+      settings.background.online.source === 'peapix' ||
+      rawUrl.startsWith('https://img.peapix.com/')
+    ) {
       return {
         url: rawUrl,
-        sourceKey: getOnlineMonetSourceKey(rawUrl, 'raw'),
         ownedObjectUrl: false,
       }
     }
 
-    // MV3才需要检查全站权限，MV2的Firefox不需要
-    if (import.meta.env.MANIFEST_VERSION === 3) {
-      const allGranted = await browser.permissions.contains({ origins: [`*://*/*`] })
-      if (!allGranted) {
-        return {
-          url: rawUrl,
-          sourceKey: getOnlineMonetSourceKey(rawUrl, 'raw'),
-          ownedObjectUrl: false,
-        }
+    // 如果没有开启缓存，直接返回原始URL
+    if (!settings.background.online.cache.enabled) {
+      return {
+        url: rawUrl,
+        ownedObjectUrl: false,
       }
     }
 
@@ -274,7 +237,7 @@ const bgTypeProviders: Record<BgType, () => Promise<BackgroundSource>> = {
     const cached = useCache ? await getCachedOnlineWallpaper(rawUrl) : null
 
     if (cached && isOnlineWallpaperCacheValid(cached, now)) {
-      return createOnlineWallpaperBlobUrl(rawUrl, cached)
+      return createOnlineWallpaperBlobUrl(cached)
     }
 
     let blob: Blob | null = null
@@ -289,20 +252,16 @@ const bgTypeProviders: Record<BgType, () => Promise<BackgroundSource>> = {
       if (e instanceof DOMException && e.name === 'AbortError') {
         // This request was invalidated by a newer request or component teardown.
         // updateBackgroundURL's version guard will discard the aborted result.
-        return { url: '', sourceKey: '', ownedObjectUrl: false }
+        return { url: '', ownedObjectUrl: false }
       }
-      ElNotification.error({
-        title: i18next.t('newtab:notification.wallpaperCache.title'),
-        message: i18next.t('newtab:notification.wallpaperCache.message', { error: e }),
-      })
+      // 无 CORS 的图源（如 Peapix 等）fetch 会失败。此时静默降级，不打断用户：
+      // 优先使用已有缓存，否则直接用原始 URL 作为背景。
       if (cached) {
-        return createOnlineWallpaperBlobUrl(rawUrl, cached) // 如果下载失败，不管缓存是否过期都继续使用缓存
+        return createOnlineWallpaperBlobUrl(cached) // 缓存有效则继续使用缓存
       }
-      // Download failed and no cache is available. Return the raw URL as explicit degraded
-      // behavior: Monet will not be applied (onImgLoaded already guards against HTTP URLs).
+      // 无缓存可用，降级为原始 URL。
       return {
         url: rawUrl,
-        sourceKey: getOnlineMonetSourceKey(rawUrl, 'raw'),
         ownedObjectUrl: false,
       }
     }
@@ -316,11 +275,10 @@ const bgTypeProviders: Record<BgType, () => Promise<BackgroundSource>> = {
 
     return {
       url: URL.createObjectURL(blob),
-      sourceKey: getOnlineMonetSourceKey(rawUrl, now),
       ownedObjectUrl: true,
     }
   },
-  [BgType.None]: async () => ({ url: '', sourceKey: '', ownedObjectUrl: false }),
+  [BgType.None]: async () => ({ url: '', ownedObjectUrl: false }),
 }
 
 function revokeDiscardedSource(source: BackgroundSource) {
@@ -363,7 +321,6 @@ let onlineFetchController: AbortController | null = null
 
 async function updateBackgroundURL(type: BgType): Promise<void> {
   const requestVersion = ++backgroundRequestVersion
-  invalidateMonet()
   const provider = bgTypeProviders[type]
   if (!provider) return
 
@@ -382,7 +339,6 @@ async function updateBackgroundURL(type: BgType): Promise<void> {
   }
 
   trackBackgroundBlobUrl(source)
-  activeMonetSourceKey.value = source.sourceKey
 
   // 只在URL真正变化时才执行切换动画
   if (source.url === bgURL.value) {
@@ -416,14 +372,6 @@ async function updateBackgroundURL(type: BgType): Promise<void> {
   shortenBgFadeDuration()
 }
 
-const { invalidate: invalidateMonet, onImageLoaded: onImgLoaded } = useBackgroundMonet({
-  backgroundUrl: bgURL,
-  image: imageRef,
-  isVideo: isVideoWallpaper,
-  sourceKey: activeMonetSourceKey,
-  refreshOnline: () => updateBackgroundURL(BgType.Online),
-})
-
 watch(
   () => settings.background.bgType,
   (newType, oldType) => {
@@ -433,10 +381,6 @@ watch(
 
 watch(activeLocalUrl, () => {
   if (settings.background.bgType === BgType.Local) void updateBackgroundURL(BgType.Local)
-})
-
-watch(bingUrl, () => {
-  if (settings.background.bgType === BgType.Bing) void updateBackgroundURL(BgType.Bing)
 })
 
 watch(
@@ -454,10 +398,7 @@ onMounted(async () => {
 async function refreshBackground() {
   const type = settings.background.bgType
   try {
-    if (type === BgType.Bing) {
-      await bingWallpaperURLGetter.refresh(true)
-      await updateBackgroundURL(BgType.Bing)
-    } else if (type === BgType.Online) {
+    if (type === BgType.Online) {
       // Clear IDB cache only; the current blob URL is revoked through
       // updateBackgroundURL's normal revokeLastBlobUrl() path.
       await clearAllOnlineWallpaperCache()
@@ -527,10 +468,8 @@ onUnmounted(() => {
         <img
           v-else-if="bgURL"
           class="background"
-          ref="imageRef"
           :src="bgURL.startsWith('url') ? bgURL.replace(bgURLreg, '$2') : bgURL"
           alt=""
-          @load="onImgLoaded"
         />
       </div>
     </Transition>

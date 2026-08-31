@@ -7,8 +7,6 @@ import Edit16Regular from '~icons/fluent/edit-16-regular'
 import FolderArrowRight16Regular from '~icons/fluent/folder-arrow-right-16-regular'
 import Pin12Regular from '~icons/fluent/pin-12-regular'
 import PinOff16Regular from '~icons/fluent/pin-off-16-regular'
-import Star12Regular from '~icons/fluent/star-12-regular'
-import BlockRound from '~icons/ic/round-block'
 import ContentCopyRound from '~icons/ic/round-content-copy'
 import OpenInNewRound from '~icons/ic/round-open-in-new'
 
@@ -58,11 +56,9 @@ const {
   ctxOpenInNewTab,
   ctxOpenInNewWindow,
   ctxCopyLink,
-  ctxCreateBookmark,
   ctxUnpin,
   ctxPin,
   ctxMove,
-  ctxBlockSite,
   ctxEdit,
 } = useQuickLinkContextMenu({
   refreshFn: props.refreshFn,
@@ -129,9 +125,6 @@ defineExpose({ open, close })
         <el-dropdown-item :icon="ContentCopyRound" @click="ctxCopyLink">
           <span>{{ t('settings:common.copyLink') }}</span>
         </el-dropdown-item>
-        <el-dropdown-item :icon="Star12Regular" @click="ctxCreateBookmark">
-          <span>{{ t('quickLinks.bookmark.add') }}</span>
-        </el-dropdown-item>
         <template v-if="ctxItem?.isPinned">
           <el-dropdown-item v-if="showEdit" :icon="Edit16Regular" divided @click="ctxEdit">
             <span>{{ t('common.edit') }}</span>
@@ -170,9 +163,6 @@ defineExpose({ open, close })
                 settings.quickLinks.grouping ? t('bookmark.addToQuickLinks') : t('quickLinks.pin')
               }}
             </span>
-          </el-dropdown-item>
-          <el-dropdown-item :icon="BlockRound" @click="ctxBlockSite">
-            <span>{{ t('quickLinks.hide') }}</span>
           </el-dropdown-item>
         </template>
       </el-dropdown-menu>

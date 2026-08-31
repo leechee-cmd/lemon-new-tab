@@ -17,9 +17,6 @@ const settingsViewsMap: Record<
     () => import('../Settings/QuickLinksSettings.vue'),
   ),
   [SettingsRoute.DOCK]: defineAsyncComponent(() => import('../Settings/DockSettings.vue')),
-  [SettingsRoute.BOOKMARK_SIDEBAR]: defineAsyncComponent(
-    () => import('../Settings/BookmarkSidebarSettings.vue'),
-  ),
   [SettingsRoute.YIYAN]: defineAsyncComponent(() => import('../Settings/YiyanSettings.vue')),
   [SettingsRoute.PERFORMANCE]: defineAsyncComponent(
     () => import('../Settings/PerformanceSettings.vue'),

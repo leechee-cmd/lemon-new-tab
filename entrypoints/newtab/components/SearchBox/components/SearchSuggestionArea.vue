@@ -196,12 +196,7 @@ function showSuggestionsDebounced() {
     return
   }
 
-  const api = searchSuggestAPIs[settings.search.suggestionAPI]
-  if (!api) {
-    console.error('Selected search suggestion API not found')
-    searchSuggestions.value = []
-    return
-  }
+  const api = searchSuggestAPIs[settings.search.suggestionAPI] ?? searchSuggestAPIs.google
 
   const text = latestLiveQuery.value
   const version = ++suggestionRequestVersion

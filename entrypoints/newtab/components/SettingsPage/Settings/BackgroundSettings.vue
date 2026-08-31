@@ -7,11 +7,6 @@ import CloudOffRound from '~icons/ic/round-cloud-off'
 import { BgType } from '@/shared/enums'
 import { useSettingsStore } from '@/shared/settings'
 
-import {
-  PermissionContext,
-  PermissionResult,
-  usePermission,
-} from '@newtab/composables/usePermission'
 import { OPEN_BACKGROUND_PREFERENCE } from '@newtab/shared/keys'
 import { isOnlyTouchDevice } from '@newtab/shared/touch'
 
@@ -25,8 +20,6 @@ const predefineMaskColor = ['#f2f3f5', '#000']
 
 const openBackgroundPreference = inject(OPEN_BACKGROUND_PREFERENCE)
 
-const { checkAndRequestPermission } = usePermission()
-
 const beforeCacheChange = async () => {
   // 已经开了就是想要关，所以允许关
   if (settings.background.online.cache.enabled) return true
@@ -35,12 +28,9 @@ const beforeCacheChange = async () => {
   // 没有在线壁纸url不给开
   if (!settings.background.online.url) return false
 
-  const { hostname } = new URL(settings.background.online.url)
-  const result = await checkAndRequestPermission(hostname, true, PermissionContext.WallpaperCache)
-  const res = result === PermissionResult.GrantedAll
-  if (res) ElMessage.success(i18next.t('settings:background.cache.nextStartup'))
-  else ElMessage.warning(i18next.t('settings:background.warning.cacheDisabled'))
-  return res
+  // Web 端无主机权限语义，直接允许开启缓存
+  ElMessage.success(i18next.t('settings:background.cache.nextStartup'))
+  return true
 }
 </script>
 
@@ -67,6 +57,11 @@ const beforeCacheChange = async () => {
         <div class="settings__label">{{ t('background.showDownloadBtn') }}</div>
         <el-switch v-model="settings.background.showDownloadBtn" />
         <p class="settings__item-note">{{ t('background.showDownloadBtnNote') }}</p>
+      </div>
+      <div class="settings__item settings__item--horizontal settings__item--with-note">
+        <div class="settings__label">{{ t('background.autoRefresh') }}</div>
+        <el-switch v-model="settings.background.online.autoRefresh" />
+        <p class="settings__item-note">{{ t('background.autoRefreshNote') }}</p>
       </div>
     </SettingsSection>
 

@@ -3,87 +3,36 @@
     "back": "Back to previous settings view"
   },
   "background": {
-    "alwaysFresh": "Always something new",
-    "bingFrom": "Image source: Bing",
     "blur": "Blur intensity",
-    "button": {
-      "bathe": {
-        "moon": "Bathe in moonlight",
-        "sun": "Bathe in sunlight"
-      }
-    },
     "cache": {
       "askEnable": {
         "message": "Caching reduces repeated downloads and keeps cached wallpapers available offline. Enable wallpaper caching?",
         "title": "Enable wallpaper caching?"
       },
-      "disabledTip": "Only available when the background type is \"Online URL\" (Bing wallpaper is always cached by default)",
+      "disabledTip": "Only available when the background type is \"Online URL\".",
       "duration": "Cache expiration duration",
       "label": "Online wallpaper cache",
       "nextStartup": "Effective on next startup",
       "noExpires": "Cache never expires"
     },
     "change": "Change background",
-    "chooseImageOrVideo": "Choose an image or video to use as wallpaper",
-    "custom": "Custom",
     "fasterBgAnim": "Faster background display on startup",
     "mask": {
       "color": "Mask color",
       "enable": "Enable mask"
     },
-    "myZoneMyRule": "Your space. Your rules.",
-    "onlineTips": {
-      "a": "Submit after pressing the Enter key or when the input field loses focus.",
-      "b": "The wallpaper caching strategy depends on the browser, and wallpapers may not be accessible offline.",
-      "c": "There will be a blank screen before the wallpaper finishes loading, and the duration depends on your internet speed.",
-      "d": "Please ensure the wallpaper API you are using allows cross-origin requests; otherwise, it will fail to load."
-    },
     "parallax": "Wallpaper parallax effect",
     "pauseWhenBlur": "Pause video background when loses focus",
-    "permission": {
-      "allowAll": "Allow all sites",
-      "allowCurrent": "Only allow this API URL",
-      "deny": "Reject",
-      "request": {
-        "faviconCacheMessage": "To enable favicon caching, the extension needs the “Access all sites” permission.",
-        "message": "To access online wallpapers, the extension needs to request the appropriate permissions:",
-        "monetColorMessage": "To enable Dynamic Theme Colors (Monet Color Extraction), the extension needs the “Access all sites” permission.",
-        "subA": {
-          "content": "Requires “Access this API URL”.",
-          "label": "Normal mode: "
-        },
-        "subB": {
-          "content": "Requires “Access all sites”.",
-          "label": "Dynamic theme colors / Cache:"
-        },
-        "title": "Permission Request",
-        "wallpaperCacheMessage": "To enable online wallpaper caching, the extension needs the “Access all sites” permission."
-      }
-    },
     "preferenceTitle": "Wallpaper preferences",
-    "resolution": "Resolution",
     "showDownloadBtn": "Show download button",
-    "showDownloadBtnNote": "Available only for Bing and online wallpapers.",
-    "sunMoonSaying": "When the sun’s out, bathe in sunlight. But when the moon’s out, bathe in moonlight!",
-    "tip": "If no background is set for dark mode, the light mode background or video will be used.",
+    "showDownloadBtnNote": "Available only for online wallpapers.",
     "title": "Background",
-    "today": "Today",
-    "type": {
-      "local": "Local file",
-      "online": "Online URL"
-    },
     "video": {
-      "blurTip": "Turn on to reduce performance usage when multiple new tabs or windows are open on the screen simultaneously.",
-      "warning": "Using a video as a background consumes a lot of GPU resources. It is recommended to avoid opening multiple new tabs at the same time. It is recommended to turn off animation, blur, and transparency effects appropriately to reduce performance consumption."
+      "blurTip": "Turn on to reduce performance usage when multiple new tabs or windows are open on the screen simultaneously."
     },
     "vignette": "Enable vignetting",
     "warning": {
-      "bingResolutionCacheFailed": "Couldn’t cache the selected resolution. The existing cache will remain in use, and the download will be retried later.",
-      "cacheDisabled": "Online wallpaper caching has been disabled because the “Access all websites” permission was not granted.",
       "fileIsNotImage": "The selected file is not an image!",
-      "monetColorDisabled": "Monet color extraction disabled",
-      "monetDisabled": "Dynamic Theme Colors (Monet Extraction) has been disabled because “Access all sites” permission was not granted.",
-      "notGranted": "Permission not granted, cannot access this host.",
       "title": "Warning",
       "tooLarge": {
         "message": "The file is too large ({{size}}) and may affect performance or occupy significant storage. Do you want to continue?",
@@ -91,18 +40,29 @@
       },
       "unknownSource": "Using images from unknown sources as backgrounds may expose your device to attacks. Do you want to continue?"
     },
-    "youLikeFine": "If you like it, that’s fine~"
-  },
-  "bookmark": {
-    "defaultSort": "Default sorting",
-    "direction": {
-      "ltr": "Left to right",
-      "rtl": "Right to left",
-      "title": "Open direction"
+    "preset": {
+      "picsum": "Lorem Picsum",
+      "peapix": "Peapix (Today's Bing)",
+      "applied": "Online wallpaper preset applied.",
+      "fetchFailed": "Failed to fetch the preset wallpaper. Please try again later.",
+      "picsumDesc": "Random high-quality photos",
+      "peapixDesc": "Bing daily HD wallpapers"
     },
-    "rightClickToOpen": "Right click on background to open",
-    "showBtn": "Show bottom-right button",
-    "title": "Bookmarks bar"
+    "onlineLabel": "Online wallpaper",
+    "onlinePlaceholder": "https://example.com/image.jpg",
+    "localLabel": "Local upload",
+    "autoRefresh": "Rrefresh online wallpaper daily",
+    "autoRefreshNote": "Preset sources (Lorem Picsum / Peapix) auto-swap to a new image every day; custom links only refresh manually.",
+    "preferenceSubtitle": "Customize background images and wallpaper sources",
+    "swap": "Swap",
+    "cancel": "Cancel",
+    "apply": "Apply wallpaper",
+    "tab": {
+      "curated": "Curated",
+      "link": "Image link",
+      "local": "Local upload"
+    },
+    "restorePrevious": "Restore previous"
   },
   "clock": {
     "blink": "Blinking colon",
@@ -147,31 +107,25 @@
     "openInNewTab": "Open in New Tab",
     "openInNewWindow": "Open in New Window",
     "sections": {
-      "animation": "Animations",
       "appearance": "Appearance",
       "behavior": "Interaction and behavior",
       "danger": "Clear data",
       "data": "Data and recovery",
       "display": "Display and content",
-      "effects": "Transparency and blur",
       "general": "General",
       "layout": "Layout and spacing",
       "position": "Page position",
-      "quickActions": "Quick controls",
       "radius": "Corner radius",
       "source": "Content source",
       "summary": {
-        "animation": "Wallpaper and interface motion",
         "appearance": "Color, shadow, and sizing",
         "behavior": "Interactions and opening behavior",
         "danger": "Irreversible actions—use with care",
         "data": "Backups and caches",
         "display": "Visible content and presentation",
-        "effects": "Control transparency and blur by component",
         "general": "Frequently used options",
         "layout": "Sizing, counts, and spacing",
         "position": "Main content and action buttons",
-        "quickActions": "Enable or disable effects in bulk",
         "radius": "Adjust component corners in one place",
         "source": "Providers and custom content"
       }
@@ -217,14 +171,12 @@
   "other": {
     "faviconCache": {
       "description": "Cache favicons locally for faster loading; requires the \"Access all sites\" permission",
-      "label": "Favicon Cache",
-      "permissionDenied": "Permission \"Access all sites\" was not granted; favicon cache remains disabled"
+      "label": "Favicon Cache"
     },
     "lanMode": {
       "enabled": "Enable LAN/WAN address mode",
       "intro": "Automatically determines whether you are on the LAN or the public internet by probing the connectivity of an internal target server: reachable → use the local address; unreachable → use the public address.",
       "invalidUrl": "Invalid URL, please re-enter",
-      "permissionDenied": "Host permission for this address was not granted; LAN/WAN address mode stays off",
       "probeTimeout": "Probe timeout (ms)",
       "probeUrl": "Probe address",
       "saved": "Probe address saved",
@@ -284,25 +236,6 @@
       "icon": "Purge favicon cache",
       "wallpaper": "Purge wallpaper cache"
     },
-    "sync": "Cloud Sync (No Longer Supported)",
-    "syncRetirement": {
-      "acknowledge": "OK",
-      "clearFailedMessage": "The old cloud data could not be deleted right now. It will not be uploaded or applied, and you will be reminded again after a future restart.",
-      "clearFailedTitle": "Unable to delete cloud data",
-      "clearCloudData": "Clean up cloud data",
-      "clearSuccess": "The old cloud data has been cleared",
-      "downloadCloudData": "Download cloud data",
-      "downloadFailed": "Cloud data could not be read or downloaded. Please try again later.",
-      "downloadNote": "You can download the current cloud data, but this file cannot be imported back into the extension.",
-      "downloadStarted": "The cloud data file has started downloading",
-      "importIgnored": "The old cloud sync option in the backup was ignored. Cloud sync remains off.",
-      "message": "Cloud Sync could sometimes replace current settings with older data. To protect your data, this feature has been removed and turned off automatically. Settings on this device are not affected.",
-      "noCloudData": "No cloud data was found to download",
-      "residualMessage": "Old cloud data was found. You can delete it without affecting the current settings on this device.",
-      "residualTitle": "Old cloud data found",
-      "title": "Cloud Sync is no longer supported"
-    },
-    "syncWarning": "This feature has been removed. Click the switch to learn how to handle old cloud data.",
     "title": "Other"
   },
   "perf": {
@@ -313,10 +246,6 @@
     "bgSwitchAnim": "Wallpaper switch animation",
     "bgSwitchAnimTip": "When disabled, there will be no fade-in/fade-out animation when switching wallpapers, which can slightly improve switching speed. Wallpaper animation on startup will also be disabled",
     "blurIntensity": "Background blur",
-    "bookmark": {
-      "blur": "Bookmarks sidebar blur",
-      "transparent": "Bookmarks sidebar transparency"
-    },
     "dialog": {
       "animation": "Dialog animation",
       "blur": "Dialog blur",
@@ -372,8 +301,6 @@
     "paging": "Enable paging",
     "pagingLoop": "Loop pages",
     "pinnedIcon": "Show pinned icon",
-    "restoreDefault": "Recover hidden links",
-    "restoreDefaultTitle": "Are you sure you want to restore default Quick Links?",
     "shadow": "Show icon shadow",
     "showOnSearchFocus": "Show on search focus",
     "showTitle": "Show link title",
@@ -446,14 +373,6 @@
       "dark": "Dark Mode",
       "light": "Light Mode",
       "system": "Follow System"
-    },
-    "monet": {
-      "askEnableCache": {
-        "message": "To use dynamic theme colors, online wallpaper cache must be enabled. Enabling cache will store images from this domains. Do you want to enable it?",
-        "title": "Enable wallpaper cache?"
-      },
-      "desc": "Inspired by Material Design 3, extracts theme colors from your wallpaper. Only supports image backgrounds. For the best visual effect, use it together with the “Global Color Mode” option.",
-      "label": "Dynamic Theme Colors (Monet Extraction)"
     },
     "primaryColor": "Primary color",
     "title": "Theme"

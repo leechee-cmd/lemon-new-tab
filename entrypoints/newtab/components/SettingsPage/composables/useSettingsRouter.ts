@@ -6,7 +6,6 @@ import DockRow24Regular from '~icons/fluent/dock-row-24-regular'
 import ExtendedDock24Regular from '~icons/fluent/extended-dock-24-regular'
 import ColorLensOutlined from '~icons/ic/outline-color-lens'
 import ApiRound from '~icons/ic/round-api'
-import BookmarkBorderRound from '~icons/ic/round-bookmark-border'
 import DashboardOutlined from '~icons/ic/round-dashboard'
 import FormatQuoteRound from '~icons/ic/round-format-quote'
 
@@ -19,7 +18,6 @@ export const SettingsRoute = {
   BACKGROUND: 'background',
   QUICK_LINKS: 'quickLinks',
   DOCK: 'dock',
-  BOOKMARK_SIDEBAR: 'bookmarkSidebar',
   YIYAN: 'yiyan',
   PERFORMANCE: 'performance',
   OTHER: 'other',
@@ -67,11 +65,6 @@ export const MENU_ITEMS: MenuItem[] = [
     key: SettingsRoute.DOCK,
     icon: ExtendedDock24Regular,
     titleKey: 'dock.title',
-  },
-  {
-    key: SettingsRoute.BOOKMARK_SIDEBAR,
-    icon: BookmarkBorderRound,
-    titleKey: 'bookmark.title',
   },
   {
     key: SettingsRoute.YIYAN,

@@ -1,4 +1,4 @@
-[![lemon-new-tab](https://socialify.git.ci/redlnn/lemon-new-tab/image?custom_description=%E4%B8%80%E4%B8%AA%E7%AE%80%E7%BA%A6%E7%9A%84%E7%BA%AF%E6%9C%AC%E5%9C%B0%E6%96%B0%E6%A0%87%E7%AD%BE%E9%A1%B5%E6%89%A9%E5%B1%95&description=1&font=Jost&language=1&logo=https%3A%2F%2Fraw.githubusercontent.com%2FRedlnn%2Flemon-new-tab%2Frefs%2Fheads%2Fmaster%2Fassets%2Ficon.svg&owner=1&pattern=Circuit+Board&stargazers=1&theme=Auto)](https://lemon.redln.top)
+[![lemon-new-tab](https://socialify.git.ci/redlnn/lemon-new-tab/image?custom_description=%E4%B8%80%E4%B8%AA%E7%AE%80%E6%B4%81%E7%9A%84%E7%BA%AF%E6%9C%AC%E5%9C%B0%E6%96%B0%E6%A0%87%E7%AD%BE%E9%A1%B5&description=1&font=Jost&language=1&logo=https%3A%2F%2Fraw.githubusercontent.com%2FRedlnn%2Flemon-new-tab%2Frefs%2Fheads%2Fmaster%2Fassets%2Ficon.svg&owner=1&pattern=Circuit+Board&stargazers=1&theme=Auto)](https://lemon.redln.top)
 
 <div align="center">
 
@@ -9,33 +9,29 @@
 
 ## 安装
 
-目前扩展已在 [Chrome Web Store](https://chromewebstore.google.com/detail/bhbpmpflnpnkjanfgbjjhldccbckjohb)
-、[Microsoft Edge Add-Ons](https://microsoftedge.microsoft.com/addons/detail/keikkgfgidagjlicckkangkfgnbdjdnh)
-和 [Firefox Browser Add-Ons](https://addons.mozilla.org/firefox/addon/lemon-new-tab/)
-上架
+柠檬起始页已改为**纯 Web 网页版**，无需安装任何扩展：
 
-> 你也可以 Clone 下来手动 Build 一份来使用
+直接访问 <https://lemon.redln.top> 即可使用，建议使用较新版本的现代浏览器。
+
+> 也可以 Clone 本仓库手动构建一份，部署到自己的服务器或任意静态托管。
 
 ## 特性
 
 让每次打开新标签页，都成为一次轻快、顺手又赏心悦目的开始。
 
-柠檬起始页是一款本地优先的开源浏览器扩展，无需额外注册账号。核心设置和个性化内容保存在浏览器中，页面加载迅速、界面简洁，也没有资讯流和广告干扰。
+柠檬起始页是一款本地优先的开源新标签页（纯 Web 网页版），无需注册账号。核心设置和个性化内容保存在浏览器本地，页面加载迅速、界面简洁，也没有资讯流和广告干扰。
 
 **🔍 灵活搜索**  
-&emsp;&ensp;支持 Bing、Google、百度、DuckDuckGo、Yandex 等搜索引擎，提供搜索联想、搜索历史和自定义搜索引擎，让你用熟悉的方式快速找到内容。
+&emsp;&ensp;支持 Google、Bing、百度、DuckDuckGo、Yandex 等搜索引擎，提供搜索联想、搜索历史和自定义搜索引擎，让你用熟悉的方式快速找到内容。
 
 **🧭 快速导航**  
 &emsp;&ensp;自动展示最常访问的网站，也可以添加、置顶和拖动整理自己的链接。支持分组、分页、滚动浏览，也可切换为 Dock 和 Launchpad 样式，常用网站一目了然。
 
-**🔖 浏览器书签**  
-&emsp;&ensp;直接搜索、打开、编辑、删除和拖动整理浏览器书签，不必离开新标签页四处查找。
-
 **🖼️ 丰富壁纸**  
-&emsp;&ensp;支持 Bing 每日一图、在线图片 API、本地图片和视频壁纸，丰富的自定义选项让你的壁纸灵动起来。
+&emsp;&ensp;内置 Lorem Picsum、Peapix 等在线壁纸源，也支持自定义图片链接以及本地图片和视频壁纸。支持每日自动更换、手动刷新，丰富的自定义选项让你的壁纸灵动起来。
 
 **🎨 高度个性化**  
-&emsp;&ensp;丰富的选项让布局、主题色、各种组件的布局与样式随你而变。更有能从壁纸提取的动态主题色，让整个页面自然协调。
+&emsp;&ensp;丰富的选项让布局、主题色、各种组件的布局与样式随你而变。
 
 **🕒 实用但不打扰**  
 &emsp;&ensp;可显示时钟、日期、秒数和农历；每天展示古诗词、励志语录或你的自定义文字，也可一键复制。
@@ -44,10 +40,10 @@
 &emsp;&ensp;针对加载和占用持续优化，支持响应式布局以及各种性能效果的独立开关。
 
 **🔄 方便备份**
-&emsp;&ensp;支持导入、导出扩展设置，方便备份当前内容或迁移到其他设备
+&emsp;&ensp;支持导入、导出设置，方便备份当前内容或迁移到其他设备
 
 **⚛️ 使用更放心**  
-&emsp;&ensp;柠檬起始页以 AGPL-3.0 许可证完整开源所有代码，不会主动收集、发送任何隐私。支持 Chrome、Edge、Firefox，无论用什么浏览器都能获得一致的体验
+&emsp;&ensp;柠檬起始页以 AGPL-3.0 许可证完整开源所有代码，不会主动收集、发送任何隐私。无需安装，支持 Chrome、Edge、Firefox 等现代浏览器，无论用什么浏览器都能获得一致的体验
 
 ## 更新日志（Changelog）
 
@@ -55,16 +51,15 @@
 
 ## 浏览器兼容性
 
-|                浏览器                | 支持 |          说明          |
-| :----------------------------------: | :--: | :--------------------: |
-|                Chrome                |  ✅  | Chrome 116 及更高版本  |
-|                 Edge                 |  ✅  |  Edge 116 及更高版本   |
-|               Firefox                |  ✅  | Firefox 128 及更高版本 |
-|            Firefox Mobile            |  ❌  |  无法取代原生新标签页  |
-|             Edge Mobile              |  ❌  |  无法取代原生新标签页  |
-| 其他基于 Chromium<br/>的移动端浏览器 |  ❓  |        未经测试        |
+|              浏览器              | 支持 |             说明             |
+| :------------------------------: | :--: | :--------------------------: |
+|              Chrome              |  ✅  | Chrome 116 及更高版本        |
+|               Edge               |  ✅  | Edge 116 及更高版本          |
+|             Firefox              |  ✅  | Firefox 128 及更高版本       |
+| 其他 Chromium 内核桌面浏览器     |  ✅  | 理论上可用                   |
+|              移动端              |  ❓  | 未专门测试                   |
 
-> 柠檬起始页自适应横竖屏模式，但未在移动端浏览器上测试及上架，故不保证兼容性
+> 柠檬起始页自适应横竖屏模式，但未在移动端浏览器上专门测试，故不保证兼容性
 
 ## 预览图
 
@@ -83,15 +78,13 @@
 ### 与青柠起始页对比
 
 > [!NOTE]  
-> 本扩展模仿了青柠起始页的部分样式，根据个人需求开发，
+> 本页面模仿了青柠起始页的部分样式，根据个人需求开发，
 > 很多功能都没有，但欢迎 PR，提 Issue 不一定会实现噢
 
 |           主要功能           | 柠檬起始页 |    青柠起始页    |
 | :--------------------------: | :--------: | :--------------: |
 |         最常访问网站         |     ✅     |        ❌        |
-|        查找浏览器书签        |     ✅     |        ❌        |
 |          自定义壁纸          |     ✅     |        ✅        |
-| 动态主题色<br />（莫奈取色） |     ✅     |        ❌        |
 |           深色模式           |     ✅     |        ✅        |
 |           视频壁纸           |     ✅     |        ✅        |
 |             一言             |     ✅     |        ✅        |
@@ -101,7 +94,7 @@
 |             天气             |     ❌     |        ✅        |
 |         个人项目推广         |     ❌     |        ✅        |
 
-## 为什么会有这个扩展？
+## 为什么会有这个项目？
 
 <details>
 <summary>主要有以下几个原因（碎碎念警告）：</summary>
@@ -110,7 +103,7 @@
 1. Chrome 设置默认搜索引擎为非 Google 后新标签页就没有搜索栏和壁纸
 2. Chrome 搜索引擎改成 Bing 后和 Edge 一样新标签页变成了 Bing 首页，多余的按钮、新闻很丑，且搜索栏和快速导航都很靠上，不好看也不中用
 3. 个人喜欢青柠起始页的外观，然而青柠起始页是一个每次打开都会进行一次 http 请求的网页，准确来讲其实是导航页而不是起始页（非常不能理解为什么要放在服务器上）
-4. 青柠并不是原生浏览器扩展，不支持展示经常访问网站（同上，非常不能理解），而我个人更习惯直接打开经常访问的网站
+4. 青柠并不支持展示经常访问网站（同上，非常不能理解），而我个人更习惯直接打开经常访问的网站
 5. 青柠起始页把快速导航放在了二级页面，而我更喜欢在新标签页中直接打开常用网站，虽然可以默认进入二级页面但是就看不到搜索栏了
 6. 青柠起始页不是个开源项目不好魔改，所以我决定根据自己需求模仿一个
 7. 怎么会有新标签页添加个快速导航或者搜索引擎都要注册账号的（继续不能理解）
@@ -133,42 +126,29 @@
 
 ### 构建
 
-#### 如果你使用 Chrome 浏览器
-
 ```sh
 git clone https://github.com/Redlnn/lemon-new-tab.git
 cd lemon-new-tab
 pnpm install
-# pnpm dev  # 运行开发环境，会启动一个独立的浏览器
-# 构建
-pnpm build  # 构建为（未压缩的）Chrome 扩展
-pnpm zip  # 打包 Chrome 扩展
+pnpm dev  # 本地开发预览
+pnpm build  # 构建到 dist-web/，产物为纯静态站点
+pnpm preview  # 本地预览构建产物
 ```
 
-#### 如果你使用 Firefox 浏览器
-
-```sh
-git clone https://github.com/Redlnn/lemon-new-tab.git
-cd lemon-new-tab
-pnpm install
-# pnpm dev  # 运行开发环境，会启动一个独立的浏览器
-# 构建
-pnpm build:firefox  # 构建为（未打包和签名的）Firefox 扩展
-pnpm zip:firefox  # 打包 Firefox 扩展
-```
+> 构建产物为纯静态文件（`dist-web/`），可部署到任意静态托管，例如 GitHub Pages、Vercel、Nginx 等。
 
 ## 已知问题
 
-1. 部分 Windows 设备上的 Chromium 内核浏览器会在启动时卡死，**禁用 GPU
-   硬件加速**或者在 [Experiments](chrome://flags/#use-angle) 页面将
+1. 部分 Windows 设备上的 Chromium 内核浏览器会在启动时卡死。**禁用 GPU
+   硬件加速**或者在 [Experiments](chrome://flags/#use-angle) 页面中
    **Choose ANGLE graphics backend** 更改为 `OpenGL` 后可缓解
-   > - 考虑是因为显卡驱动 / 系统问题等原因造成
+   > - 考虑是因为显卡驱动/ 系统问题等原因造成
    > - Chromium 不推荐使用 OpenGL API 渲染，改成其他也可能会有效（可能会不卡但掉帧）
 
 ## 鸣谢
 
 - [青柠起始页](https://limestart.cn/)：柠檬起始页的模仿对象，模仿了布局和动画，参考了部分 CSS
-- [Light Tab Page 轻标签页](https://github.com/Devifish/light-tab-page)：自定义壁纸储存的实现来源
+- [Light Tab Page 轻标签页](https://github.com/Devifish/light-tab-page)：自定义壁纸储存的实现来自
 
 ## License
 

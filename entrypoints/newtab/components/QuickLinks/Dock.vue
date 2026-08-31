@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import '@newtab/styles/quick-links.scss'
-import { OnLongPress } from '@vueuse/components'
 import { useDebounceFn, useResizeObserver, useWindowSize } from '@vueuse/core'
 import { defineAsyncComponent } from 'vue'
 
@@ -18,7 +17,6 @@ import { useSettingsStore } from '@/shared/settings'
 
 import { useFocusState } from '@newtab/composables/useFocus'
 import usePerfClasses from '@newtab/composables/usePerfClasses'
-import { isTouchEvent } from '@newtab/shared/touch'
 
 import FaviconImage from './components/FaviconImage.vue'
 import QuickLinkContextMenu from './components/QuickLinkContextMenu.vue'
@@ -26,8 +24,6 @@ import QuickLinkGroupSelectDialog from './components/QuickLinkGroupSelectDialog.
 import type { CtxQuickLinkItem } from './composables/useQuickLinkContextMenu'
 import { useQuickLinkGroupActions } from './composables/useQuickLinkGroupActions'
 import { useDockLayout } from './composables/useQuickLinksLayout'
-import { mergeTopSites } from './composables/useTopSitesMerge'
-import { rawTopSites } from './utils/topSites'
 
 const Launchpad = defineAsyncComponent(() => import('./Launchpad.vue'))
 
@@ -76,14 +72,6 @@ const rawQuickLinks = computed(() =>
 const quickLinks = computed(() =>
   rawQuickLinks.value.map((link) => ({ ...link, url: lanMode.resolveLanLinkUrl(link) })),
 )
-const topSites = computed(() =>
-  settings.dock.topSites
-    ? mergeTopSites(rawTopSites.value, {
-        quickLinks: rawQuickLinks.value,
-        noCap: true,
-      })
-    : [],
-)
 
 async function refresh() {
   await refreshDockScaleLayout()
@@ -91,9 +79,6 @@ async function refresh() {
 
 // 根据屏幕宽度初始两个区块的可见项目
 const visibleQuickLinksData = computed(() => quickLinks.value.slice(0, maxFitCols.value))
-const visibleTopSites = computed(() =>
-  topSites.value.slice(0, Math.max(0, maxFitCols.value - visibleQuickLinksData.value.length)),
-)
 
 // 屏幕尺寸变化时更新最大列数
 // useResizeObserver 会在开始观察时立即触发一次，因此不需要额外的 onMounted 刷新调用
@@ -107,13 +92,6 @@ watch(
   async () => {
     updateMaxCols()
     await refreshDebounced()
-  },
-)
-
-watch(
-  () => settings.dock.topSites,
-  () => {
-    refreshDebounced()
   },
 )
 
@@ -303,17 +281,6 @@ function onItemContextmenu(
   openDockItemMenu(event, item, isPinned, originalIndex)
 }
 
-function onItemLongPress(
-  event: PointerEvent,
-  item: { url: string; title?: string },
-  isPinned: boolean,
-  originalIndex: number,
-): void {
-  if (isTouchEvent(event)) {
-    openDockItemMenu(event, item, isPinned, originalIndex)
-  }
-}
-
 const { pinToGroup, moveToGroup } = useQuickLinkGroupActions({
   groupSelectDialogRef,
   refresh: refreshDebounced,
@@ -451,40 +418,6 @@ defineExpose({ refresh })
         class="dock-gap"
         :ref="setScalableRef"
       ></div>
-    </template>
-    <template v-if="visibleQuickLinksData.length > 0 && visibleTopSites.length > 0">
-      <div class="dock-gap" :ref="setScalableRef"></div>
-      <div class="dock-separator"></div>
-      <div class="dock-gap" :ref="setScalableRef"></div>
-    </template>
-    <template v-for="(item, j) in visibleTopSites" :key="`top-${j}`">
-      <el-tooltip
-        :content="item.title"
-        placement="top"
-        effect="light"
-        :hide-after="0"
-        :show-arrow="false"
-        :enterable="false"
-        :disabled="isUsingTouch"
-        transition="none"
-        :popper-class="dockTooltipClass"
-      >
-        <OnLongPress
-          as="a"
-          class="dock-item"
-          draggable="false"
-          :href="item.url"
-          :ref="setScalableRef"
-          :aria-label="item.title"
-          :target="settings.dock.openInNewTab ? '_blank' : '_self'"
-          :rel="settings.dock.openInNewTab ? 'noopener noreferrer' : undefined"
-          @contextmenu.stop.prevent="onItemContextmenu($event, item, false, j)"
-          @trigger="onItemLongPress($event, item, false, j)"
-        >
-          <favicon-image :url="item.url" :favicon="item.favicon" alt="" />
-        </OnLongPress>
-      </el-tooltip>
-      <div v-if="j !== visibleTopSites.length - 1" class="dock-gap" :ref="setScalableRef"></div>
     </template>
     <template v-if="!settings.dock.launchpad.enabled">
       <div class="dock-gap" :ref="setScalableRef"></div>

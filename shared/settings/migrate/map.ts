@@ -3,7 +3,7 @@ import { BgType, type OldBgType } from '@/shared/enums'
 const OldToNewMap = {
   0: BgType.None,
   1: BgType.Local,
-  2: BgType.Bing,
+  2: BgType.None,
   3: BgType.Online,
 } satisfies Record<OldBgType, BgType>
 

@@ -1,28 +1,25 @@
-import { browser } from '#imports'
+import { storage } from '#imports'
 
 export async function isSettingsCompatible(): Promise<boolean> {
-  const storedSettings: {
-    $settings: number | null
-    settings: { version: string | number | null; [key: string]: unknown }
-  } = await browser.storage.local.get({
-    $settings: null,
-    settings: { version: null },
-  })
+  const stored$ = await storage.getItem<number | null>('local:$settings', { fallback: null })
+  const storedSettings = (await storage.getItem<{
+    version: string | number | null
+  } | null>('local:settings', { fallback: null })) ?? { version: null }
 
-  if (storedSettings.$settings && storedSettings.$settings <= 6) {
+  if (stored$ && stored$ <= 6) {
     return false
   }
 
-  if (storedSettings.settings.version) {
+  if (storedSettings.version) {
     let isInvaildSettings: boolean = false
 
-    if (typeof storedSettings.settings.version === 'string') {
+    if (typeof storedSettings.version === 'string') {
       // 远古配置文件
       isInvaildSettings = true
-    } else if (storedSettings.settings.version <= 6) {
+    } else if (storedSettings.version <= 6) {
       isInvaildSettings = true
     }
-    if (!('pluginVersion' in storedSettings.settings)) {
+    if (!('pluginVersion' in storedSettings)) {
       // 早期版本没有 pluginVersion 字段，说明配置文件非常古老，直接清除重置
       isInvaildSettings = true
     }

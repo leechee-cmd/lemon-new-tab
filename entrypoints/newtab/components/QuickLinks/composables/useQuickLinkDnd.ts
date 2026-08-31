@@ -28,7 +28,6 @@ export type QuickLinkDndData =
       title: string
       favicon?: string
       isPinned: boolean
-      origin: 'pinned' | 'top-sites'
       pageIndex?: number
     }
   | {
@@ -339,9 +338,9 @@ export function toQuickLinkDisplayItem(
 ): QuickLinkDisplayItem {
   return {
     ...getQuickLinkFromDndData(source),
-    isPinned: source.origin === 'pinned',
+    isPinned: true,
     originalIndex: source.storeIndex,
-    groupId: grouping && source.origin === 'pinned' ? source.groupId : undefined,
+    groupId: grouping ? source.groupId : undefined,
   }
 }
 
@@ -379,20 +378,6 @@ export async function persistQuickLinkDndMove(options: {
   moveTarget: QuickLinkDndMoveTarget
 }) {
   const { store, grouping, source, moveTarget } = options
-
-  if (source.origin === 'top-sites') {
-    const quickLink = getQuickLinkFromDndData(source)
-    return grouping
-      ? await store.insertQuickLinkToGroup({
-          groupId: moveTarget.groupId,
-          quickLink,
-          index: moveTarget.storeIndex,
-        })
-      : await store.insertFlatQuickLink({
-          quickLink,
-          index: moveTarget.storeIndex,
-        })
-  }
 
   return grouping
     ? await store.moveQuickLink({

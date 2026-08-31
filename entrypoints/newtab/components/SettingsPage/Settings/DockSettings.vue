@@ -1,10 +1,7 @@
 <script setup lang="ts">
 import { useTranslation } from 'i18next-vue'
-import RestoreRound from '~icons/ic/round-restore'
 
 import { useSettingsStore } from '@/shared/settings'
-
-import { blockedTopSitesStorage } from '@newtab/shared/storages/topSitesStorage'
 
 import { useQuickLinksGroupingChange } from '../composables/useQuickLinksGroupingChange'
 
@@ -14,11 +11,6 @@ const { t } = useTranslation('settings')
 
 const settings = useSettingsStore()
 const { handleGroupingChange } = useQuickLinksGroupingChange()
-
-async function restoreDefaultTopSites() {
-  await blockedTopSitesStorage.setValue([])
-  location.reload()
-}
 </script>
 
 <template>
@@ -64,10 +56,6 @@ async function restoreDefaultTopSites() {
       </div>
       <template v-if="settings.dock.launchpad.enabled">
         <div class="settings__item settings__item--horizontal">
-          <div class="settings__label">{{ t('quickLinks.topSites') }}</div>
-          <el-switch v-model="settings.dock.launchpad.topSites" />
-        </div>
-        <div class="settings__item settings__item--horizontal">
           <div class="settings__label">{{ t('common.openInNewTab') }}</div>
           <el-switch v-model="settings.dock.launchpad.openInNewTab" />
         </div>
@@ -80,10 +68,6 @@ async function restoreDefaultTopSites() {
       :summary="t('common.sections.summary.layout')"
       content-class="settings-control-grid"
     >
-      <div class="settings__item settings__item--horizontal">
-        <div class="settings__label">{{ t('quickLinks.topSites') }}</div>
-        <el-switch v-model="settings.dock.topSites" />
-      </div>
       <div class="settings__item settings__item--horizontal">
         <div class="settings__label">{{ t('common.openInNewTab') }}</div>
         <el-switch v-model="settings.dock.openInNewTab" />
@@ -136,29 +120,6 @@ async function restoreDefaultTopSites() {
           :show-input-controls="false"
           :show-tooltip="false"
         />
-      </div>
-    </SettingsSection>
-
-    <SettingsSection
-      v-if="settings.dock.enabled"
-      :title="t('common.sections.data')"
-      :summary="t('common.sections.summary.data')"
-    >
-      <div class="settings__item settings__item--horizontal">
-        <div class="settings__label">{{ t('quickLinks.restoreDefault') }}</div>
-        <el-popconfirm
-          width="220"
-          :confirm-button-text="t('newtab:common.confirm')"
-          :cancel-button-text="t('newtab:common.no')"
-          :icon="RestoreRound"
-          icon-color="#626AEF"
-          :title="t('quickLinks.restoreDefaultTitle')"
-          @confirm="restoreDefaultTopSites()"
-        >
-          <template #reference>
-            <el-button :icon="RestoreRound" circle />
-          </template>
-        </el-popconfirm>
       </div>
     </SettingsSection>
   </div>

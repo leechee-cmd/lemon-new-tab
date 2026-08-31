@@ -15,7 +15,6 @@ const EFFECT_SETTING_KEYS = [
   'searchBar',
   'quickLinks',
   'yiyan',
-  'bookmark',
   'dialog',
   'actionBtns',
 ] as const
@@ -42,7 +41,6 @@ const effectTitleGetters: Record<EffectSettingKey, () => string> = {
   searchBar: () => t('search.title'),
   quickLinks: () => `${t('quickLinks.title')} / Dock`,
   yiyan: () => t('yiyan.title'),
-  bookmark: () => t('bookmark.title'),
   dialog: () => t('perf.dialog.title'),
   actionBtns: () => t('perf.actionBtns.transparent').replace(/透明$/, ''),
 }

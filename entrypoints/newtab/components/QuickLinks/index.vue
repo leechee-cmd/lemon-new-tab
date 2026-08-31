@@ -41,7 +41,6 @@ import QuickLinkSortableItem from './components/QuickLinkSortableItem.vue'
 import QuickLinksPaginationDots from './components/QuickLinksPaginationDots.vue'
 import {
   buildQuickLinkDisplayItems,
-  buildTopSiteDisplayItems,
 } from './composables/quickLinkDisplayItems'
 import {
   buildQuickLinkPages,
@@ -56,7 +55,6 @@ import {
   QUICK_LINK_GROUPS_DND_ID,
   QUICK_LINK_GROUP_DND_TYPE,
   createDelayedTargetSwitch,
-  TOP_SITES_DND_GROUP_ID,
   getDndData,
   getPointerClientPoint,
   getSortableMoveState,
@@ -73,8 +71,6 @@ import {
 import { useQuickLinkGroupActions } from './composables/useQuickLinkGroupActions'
 import { solveGridColumnFirst, usePagedGridLayout } from './composables/useQuickLinksLayout'
 import { useQuickLinksPagination } from './composables/useQuickLinksPagination'
-import { mergeTopSites } from './composables/useTopSitesMerge'
-import { rawTopSites } from './utils/topSites'
 const focusStore = useFocusState()
 const settings = useSettingsStore()
 const quickLinksStore = useQuickLinksStore()
@@ -90,29 +86,15 @@ const props = defineProps<{
 
 const refreshDebounced = useDebounceFn(refresh, 100)
 const quickLinks = computed(() => quickLinksStore.items.slice())
-const topSites = computed(() =>
-  settings.quickLinks.topSites
-    ? mergeTopSites(rawTopSites.value, {
-        quickLinks: settings.quickLinks.grouping ? [] : quickLinks.value,
-        noCap: true,
-      })
-    : [],
-)
 
-const topSitesGroupId = TOP_SITES_DND_GROUP_ID
 const legacyDndGroupId = FLAT_QUICK_LINK_DND_GROUP_ID
-const topSitesGroupName = i18next.t('newtab:quickLinks.groups.topSites')
 
 const userGroups = computed(() => {
   if (!settings.quickLinks.grouping) return []
   return quickLinksStore.groups
 })
 
-const legacyItems = computed(() => buildQuickLinkDisplayItems(quickLinks.value, topSites.value))
-const hasTopSitesItems = computed(() => settings.quickLinks.topSites && topSites.value.length > 0)
-const topSiteDisplayItems = computed(() =>
-  hasTopSitesItems.value ? buildTopSiteDisplayItems(topSites.value, topSitesGroupId) : [],
-)
+const legacyItems = computed(() => buildQuickLinkDisplayItems(quickLinks.value))
 
 const visibleCategoryGroups = computed(() => userGroups.value)
 
@@ -126,11 +108,9 @@ const pages = computed<QuickLinkPage[]>(() => {
     grouping: settings.quickLinks.grouping,
     groups: visibleCategoryGroups.value,
     legacyItems: legacyItems.value,
-    topSiteItems: topSiteDisplayItems.value,
     slotsPerPage: slotsPerPage.value,
     defaultGroupId: DEFAULT_QUICK_LINK_GROUP_ID,
     flatGroupId: legacyDndGroupId,
-    topSitesGroupId,
   })
 })
 
@@ -139,11 +119,8 @@ const scrollSections = computed<ScrollSection[]>(() => {
     grouping: settings.quickLinks.grouping,
     groups: visibleCategoryGroups.value,
     legacyItems: legacyItems.value,
-    topSiteItems: topSiteDisplayItems.value,
-    topSitesTitle: topSitesGroupName,
     defaultGroupId: DEFAULT_QUICK_LINK_GROUP_ID,
     defaultGroupName: quickLinksStore.groups[0]?.name,
-    topSitesGroupId,
   })
 })
 
@@ -163,7 +140,7 @@ const scrollSectionLookup = computed(() => {
   return map
 })
 
-// 始终使用完整 pages 长度，以支持关闭翻页时也能切换分组
+// 始终使用完整 pages 长度，以支持关闭翻页时也能切换分�?
 const paginationTotalItems = computed(() => pages.value.length)
 const paginationItemsPerPage = ref(1)
 const allowPageLoop = computed(() => settings.quickLinks.pagingLoop && !isDragging.value)
@@ -195,7 +172,7 @@ function getPage(pageIndex: number): QuickLinkPage | null {
 
 function showAddButtonForPage(pageIndex: number) {
   const page = getPage(pageIndex)
-  if (!page || page.isTopSites) return false
+  if (!page) return false
   return page.pageInGroup === page.totalPagesInGroup - 1
 }
 
@@ -212,26 +189,22 @@ function getDisplayGroupId(groupId?: string) {
   return settings.quickLinks.grouping ? (groupId ?? DEFAULT_QUICK_LINK_GROUP_ID) : legacyDndGroupId
 }
 
-function getItemDndGroupId(item: DisplayItem, groupId?: string) {
-  return item.isPinned ? getDisplayGroupId(groupId) : topSitesGroupId
+function getItemDndGroupId(groupId?: string) {
+  return getDisplayGroupId(groupId)
 }
 
 function getItemSortableIndex(item: DisplayItem) {
-  return item.isPinned ? (item.sortableIndex ?? 0) : item.originalIndex
-}
-
-function getItemDndOrigin(item: DisplayItem) {
-  return item.isPinned ? 'pinned' : 'top-sites'
+  return item.sortableIndex ?? 0
 }
 
 function getItemDndDisabled(item: DisplayItem) {
-  return item.isPinned ? false : { draggable: false, droppable: true }
+  void item
+  return false
 }
 
 function getSortableStoreIndexesForContext(groupId: string, pageIndex?: number) {
   if (settings.quickLinks.useScroll) {
     const section = scrollSectionLookup.value.get(groupId)
-    if (section?.isTopSites) return []
     return section?.sortableStoreIndexes ?? []
   }
 
@@ -240,16 +213,16 @@ function getSortableStoreIndexesForContext(groupId: string, pageIndex?: number) 
       ? pageLookup.value.get(`${groupId}:${pageIndex}`)
       : currentPageData.value
 
-  if (page && page.groupId === groupId && !page.isTopSites) {
+  if (page && page.groupId === groupId) {
     return page.sortableStoreIndexes
   }
 
   return []
 }
 
-// 前一页的项目（用于预加载）
+// 前一页的项目（用于预加载�?
 const prevPageData = computed(() => {
-  // 如果有预加载目标页且向右跳（目标页 < 当前页），将目标页内容加载到 prev 位置
+  // 如果有预加载目标页且向右跳（目标�?< 当前页），将目标页内容加载到 prev 位置
   if (preloadTargetPage.value !== null && slideDirection.value === 'right') {
     return getPage(preloadTargetPage.value)
   }
@@ -257,9 +230,9 @@ const prevPageData = computed(() => {
 })
 const prevPageItems = computed(() => prevPageData.value?.items ?? [])
 
-// 后一页的项目（用于预加载）
+// 后一页的项目（用于预加载�?
 const nextPageData = computed(() => {
-  // 如果有预加载目标页且向左跳（目标页 > 当前页），将目标页内容加载到 next 位置
+  // 如果有预加载目标页且向左跳（目标�?> 当前页），将目标页内容加载到 next 位置
   if (preloadTargetPage.value !== null && slideDirection.value === 'left') {
     return getPage(preloadTargetPage.value)
   }
@@ -321,7 +294,7 @@ const quickLinkItemPresentation = computed<QuickLinkItemPresentation>(() => {
     linkTarget: openInNewTab ? '_blank' : '_self',
     linkRel: openInNewTab ? 'noopener noreferrer' : undefined,
     iconTitleGap: `${quickLinks.spacing.iconTitleGap}px`,
-    showPinnedIcon: quickLinks.pinnedIcon && quickLinks.topSites,
+    showPinnedIcon: quickLinks.pinnedIcon,
     iconBorder: quickLinks.style.border,
     showTitle: quickLinks.title.show,
     titleWidth: `calc(var(--icon_size) + ${quickLinks.title.extraWidth}px)`,
@@ -364,7 +337,7 @@ async function openAddQuickLink() {
   }
 
   const page = currentPageData.value
-  if (page && !page.isTopSites && page.groupId !== topSitesGroupId) {
+  if (page) {
     props.onOpenAddDialog?.(page.groupId)
     return
   }
@@ -384,7 +357,7 @@ function openAddQuickLinkForSection(section: ScrollSection) {
 }
 
 function openCtxMenu(event: MouseEvent | PointerEvent, item: DisplayItem): void {
-  // 关闭上一个
+  // 关闭上一�?
   if (openedMenuCloseFn.value) {
     openedMenuCloseFn.value()
   }
@@ -399,7 +372,7 @@ const { pinToGroup, moveToGroup, renameGroup, confirmDeleteGroup } = useQuickLin
   afterDelete: () => selectGroup(quickLinksStore.groups[0]?.id ?? DEFAULT_QUICK_LINK_GROUP_ID),
 })
 
-// 切换页面时重置并关闭已打开的菜单
+// 切换页面时重置并关闭已打开的菜�?
 watch(
   () => currentPage.value,
   () => {
@@ -416,7 +389,7 @@ const grid = computed(() => {
     return { cols: maxFitCols.value, rows: maxFitRows.value }
   }
   const currentCount = currentPageItems.value.length
-  // 单页 → 根据内容收缩
+  // 单页 �?根据内容收缩
   return solveGridColumnFirst(
     showAddButtonForPage(currentPage.value) ? currentCount + 1 : currentCount,
     maxFitCols.value,
@@ -448,7 +421,7 @@ function setCurrentPageContainerRef(el: unknown) {
 }
 
 function refresh() {
-  // 刷新时重置打开的菜单，防止布局或数据变化导致索引失效
+  // 刷新时重置打开的菜单，防止布局或数据变化导致索引失�?
   if (openedMenuCloseFn.value) {
     openedMenuCloseFn.value()
     openedMenuCloseFn.value = null
@@ -519,28 +492,20 @@ function getQuickLinkMoveTarget(
     currentPage &&
     (target.groupId !== currentPage.groupId || target.pageIndex !== currentPage.pageInGroup)
   const targetForQuickLink = isStalePagedTarget ? null : target
-  const targetGroupAsContainer =
-    source.origin === 'top-sites' && targetForQuickLink?.kind === 'quick-link-group'
-      ? {
-          groupId: targetForQuickLink.groupId,
-          sortableIndex: getSortableStoreIndexesForContext(targetForQuickLink.groupId).length,
-          storeIndex: getItemGroupSize(targetForQuickLink.groupId),
-        }
-      : null
+  const targetGroupAsContainer = null
   if (targetForQuickLink?.kind === 'quick-link-group' && !targetGroupAsContainer) return null
 
   const fallbackGroupId = currentPageData.value?.groupId ?? source.groupId
-  const fallbackTarget =
-    fallbackGroupId && fallbackGroupId !== topSitesGroupId
-      ? {
-          groupId: fallbackGroupId,
-          sortableIndex: getSortableStoreIndexesForContext(fallbackGroupId).length,
-          storeIndex: getItemGroupSize(fallbackGroupId),
-        }
-      : null
+  const fallbackTarget = fallbackGroupId
+    ? {
+        groupId: fallbackGroupId,
+        sortableIndex: getSortableStoreIndexesForContext(fallbackGroupId).length,
+        storeIndex: getItemGroupSize(fallbackGroupId),
+      }
+    : null
   const moveTarget =
     targetGroupAsContainer ?? resolveQuickLinkMoveTarget(targetForQuickLink, fallbackTarget)
-  if (!moveTarget || moveTarget.groupId === topSitesGroupId) return null
+  if (!moveTarget) return null
 
   if (targetForQuickLink?.kind !== 'quick-link' || targetGroupAsContainer) {
     return {
@@ -550,7 +515,6 @@ function getQuickLinkMoveTarget(
   }
 
   const targetGroupId = sortableMove.toGroupId ?? moveTarget.groupId
-  if (targetGroupId === topSitesGroupId) return null
   const targetStoreIndexes = getSortableStoreIndexesForContext(
     targetGroupId,
     targetForQuickLink.pageIndex ?? source.pageIndex,
@@ -592,7 +556,6 @@ function handleQuickLinkDragOver(event: DragOverEvent) {
   }
   if (
     source.kind === 'quick-link' &&
-    source.origin !== 'top-sites' &&
     target?.kind === 'quick-link-group'
   ) {
     event.preventDefault()
@@ -600,8 +563,6 @@ function handleQuickLinkDragOver(event: DragOverEvent) {
 }
 
 async function handleQuickLinkDragEnd(event: DragEndEvent) {
-  let shouldRemountDnd = false
-
   try {
     clearEdgeSwitchTimer()
     isDragging.value = false
@@ -625,7 +586,6 @@ async function handleQuickLinkDragEnd(event: DragEndEvent) {
     }
 
     if (source.kind !== 'quick-link') return
-    shouldRemountDnd = source.origin === 'top-sites'
     const moveTarget = getQuickLinkMoveTarget(source, target, sortableMove)
     if (!moveTarget) return
 
@@ -636,9 +596,7 @@ async function handleQuickLinkDragEnd(event: DragEndEvent) {
         source,
         moveTarget,
       })
-      if (source.origin === 'top-sites') {
-        await refreshDebounced()
-      } else if (changed) {
+      if (changed) {
         await refreshDebounced()
       }
     } catch (error) {
@@ -651,7 +609,7 @@ async function handleQuickLinkDragEnd(event: DragEndEvent) {
     isDragging.value = false
     activeDndData.value = null
     resetPagingTransition()
-    if (shouldRemountDnd || edgeSwitchOccurred) {
+    if (edgeSwitchOccurred) {
       dndRenderKey.value++
     }
     edgeSwitchOccurred = false
@@ -663,7 +621,7 @@ function handleQuickLinkTouchMenu(event: PointerEvent, data: QuickLinkDndData) {
   openCtxMenu(event, toQuickLinkDisplayItem(data, settings.quickLinks.grouping))
 }
 
-// 设置滑动手势支持（绑定到 slide-viewport，以便切换时能切换 overflow）
+// 设置滑动手势支持（绑定到 slide-viewport，以便切换时能切�?overflow�?
 setupSwipe(
   quickLinksContainerRef,
   prevPageContainerRef,
@@ -673,7 +631,7 @@ setupSwipe(
   computed(() => settings.quickLinks.paging && !settings.quickLinks.useScroll),
 )
 
-// 开始拖拽时关闭已打开的菜单
+// 开始拖拽时关闭已打开的菜�?
 watch(isDragging, (dragging) => {
   if (dragging && openedMenuCloseFn.value) {
     openedMenuCloseFn.value()
@@ -687,10 +645,10 @@ useEventListener(
   (evt: WheelEvent) => {
     if (isDragging.value || settings.quickLinks.useScroll || !settings.quickLinks.paging) return
     if (evt.deltaY < 0 || evt.deltaX < 0) {
-      // 向上滚动，上一页
+      // 向上滚动，上一�?
       prevPage()
     } else if (evt.deltaY > 0 || evt.deltaX > 0) {
-      // 向下滚动，下一页
+      // 向下滚动，下一�?
       nextPage()
     }
   },
@@ -735,7 +693,7 @@ watch(
   () => settings.quickLinks.paging,
   (pagingEnabled) => {
     if (!pagingEnabled) {
-      // 关闭翻页时，重置到当前分组的首页，避免停留在组内中间页
+      // 关闭翻页时，重置到当前分组的首页，避免停留在组内中间�?
       const currentGroupId = currentPageData.value?.groupId
       if (currentGroupId) {
         const firstIdx = pages.value.findIndex((p) => p.groupId === currentGroupId)
@@ -756,13 +714,6 @@ watch(isOnlyTouchDevice, updateMaxCols)
 onBeforeUnmount(() => {
   clearEdgeSwitchTimer()
 })
-
-watch(
-  () => settings.quickLinks.topSites,
-  () => {
-    refreshDebounced()
-  },
-)
 
 watch(
   () => settings.quickLinks.grouping,
@@ -788,7 +739,7 @@ const isHideQuickLink = computed(() => {
   return settings.quickLinks.showOnSearchFocus ? '1' : '0'
 })
 
-// 提取容器通用class（避免模板中重复）
+// 提取容器通用class（避免模板中重复�?
 const containerBaseClasses = computed(() => [
   settings.quickLinks.style.shadow ? 'quick-links__container--item-shadow' : undefined,
   settings.quickLinks.title.whiteInLightMode ? 'quick-links__container--white-in-light' : undefined,
@@ -829,7 +780,7 @@ const categoryClass = categoryPerf('quick-links__category')
 
 function getActiveGroupId() {
   const page = currentPageData.value
-  if (settings.quickLinks.useScroll || !page || page.isTopSites) {
+  if (settings.quickLinks.useScroll || !page) {
     return DEFAULT_QUICK_LINK_GROUP_ID
   }
   return page.groupId ?? DEFAULT_QUICK_LINK_GROUP_ID
@@ -873,7 +824,6 @@ defineExpose({ refresh, getActiveGroupId })
               class="quick-links__container quick-links__scroll-grid"
               :class="containerBaseClasses"
               :style="scrollGridStyle"
-              :disabled="section.isTopSites"
               :data="{
                 kind: 'quick-link-container',
                 source: 'quick-links',
@@ -887,25 +837,24 @@ defineExpose({ refresh, getActiveGroupId })
                   :id="
                     quickLinkDndId(
                       'quick-links',
-                      getItemDndGroupId(item, section.groupId),
+                      getItemDndGroupId(section.groupId),
                       item.originalIndex,
                       item.url,
                     )
                   "
                   :index="getItemSortableIndex(item)"
-                  :group="getItemDndGroupId(item, section.groupId)"
+                  :group="getItemDndGroupId(section.groupId)"
                   :disabled="getItemDndDisabled(item)"
                   :data="{
                     kind: 'quick-link',
                     source: 'quick-links',
-                    groupId: getItemDndGroupId(item, section.groupId),
+                    groupId: getItemDndGroupId(section.groupId),
                     sortableIndex: getItemSortableIndex(item),
                     storeIndex: item.originalIndex,
                     url: item.url,
                     title: item.title,
                     favicon: item.favicon,
                     isPinned: item.isPinned,
-                    origin: getItemDndOrigin(item),
                   }"
                   :title="item.title"
                   @touch-menu="handleQuickLinkTouchMenu"
@@ -922,7 +871,6 @@ defineExpose({ refresh, getActiveGroupId })
                 </quick-link-sortable-item>
               </template>
               <add-quick-link
-                v-if="!section.isTopSites"
                 :presentation="quickLinkItemPresentation"
                 :show-button="true"
                 :on-open="() => openAddQuickLinkForSection(section)"
@@ -978,18 +926,6 @@ defineExpose({ refresh, getActiveGroupId })
             </quick-link-sortable-item>
           </div>
           <button
-            v-if="settings.quickLinks.topSites"
-            type="button"
-            class="quick-links__category-item"
-            :class="{
-              'quick-links__category-item--active': currentPageData?.groupId === topSitesGroupId,
-            }"
-            :aria-current="currentPageData?.groupId === topSitesGroupId ? 'page' : undefined"
-            @click="selectGroup(topSitesGroupId)"
-          >
-            {{ topSitesGroupName }}
-          </button>
-          <button
             type="button"
             class="quick-links__category-item"
             :aria-label="t('newtab:a11y.addQuickLinksGroup')"
@@ -999,7 +935,7 @@ defineExpose({ refresh, getActiveGroupId })
           </button>
         </el-space>
         <div v-if="!settings.quickLinks.useScroll" class="quick-links__wrapper-inner">
-          <!-- 左翻页按钮 -->
+          <!-- 左翻页按�?-->
           <button
             v-if="showPagination && !isOnlyTouchDevice"
             type="button"
@@ -1023,7 +959,7 @@ defineExpose({ refresh, getActiveGroupId })
             <!-- 滑动轨道容器 -->
             <div ref="quickLinksContainerRef" class="quick-links__slide-viewport">
               <div class="quick-links__slide-track">
-                <!-- 前一页 -->
+                <!-- 前一�?-->
                 <div
                   v-if="currentPage > 0 || preloadTargetPage !== null"
                   ref="prevPageContainerRef"
@@ -1057,13 +993,13 @@ defineExpose({ refresh, getActiveGroupId })
                     :on-open="openAddQuickLink"
                   />
                 </div>
-                <!-- 前一页占位（当没有前一页时） -->
+                <!-- 前一页占位（当没有前一页时�?-->
                 <div
                   v-else
                   class="quick-links__container quick-links__container--page quick-links__container--prev quick-links__container--placeholder"
                 ></div>
 
-                <!-- 当前页 -->
+                <!-- 当前�?-->
                 <quick-link-drop-target
                   :ref="setCurrentPageContainerRef"
                   :id="
@@ -1075,7 +1011,6 @@ defineExpose({ refresh, getActiveGroupId })
                   "
                   class="quick-links__container quick-links__container--page quick-links__container--current"
                   :class="[...containerBaseClasses, containerAnimationClasses]"
-                  :disabled="currentPageData?.isTopSites"
                   :data="{
                     kind: 'quick-link-container',
                     source: 'quick-links',
@@ -1100,25 +1035,24 @@ defineExpose({ refresh, getActiveGroupId })
                       :id="
                         quickLinkDndId(
                           'quick-links',
-                          getItemDndGroupId(item, currentPageData?.groupId),
+                          getItemDndGroupId(currentPageData?.groupId),
                           item.originalIndex,
                           item.url,
                         )
                       "
                       :index="getItemSortableIndex(item)"
-                      :group="getItemDndGroupId(item, currentPageData?.groupId)"
+                      :group="getItemDndGroupId(currentPageData?.groupId)"
                       :disabled="getItemDndDisabled(item)"
                       :data="{
                         kind: 'quick-link',
                         source: 'quick-links',
-                        groupId: getItemDndGroupId(item, currentPageData?.groupId),
+                        groupId: getItemDndGroupId(currentPageData?.groupId),
                         sortableIndex: getItemSortableIndex(item),
                         storeIndex: item.originalIndex,
                         url: item.url,
                         title: item.title,
                         favicon: item.favicon,
                         isPinned: item.isPinned,
-                        origin: getItemDndOrigin(item),
                         pageIndex: currentPageData?.pageInGroup,
                       }"
                       @touch-menu="handleQuickLinkTouchMenu"
@@ -1144,7 +1078,7 @@ defineExpose({ refresh, getActiveGroupId })
                   />
                 </quick-link-drop-target>
 
-                <!-- 后一页 -->
+                <!-- 后一�?-->
                 <div
                   v-if="currentPage < totalPages - 1 || preloadTargetPage !== null"
                   ref="nextPageContainerRef"
@@ -1178,7 +1112,7 @@ defineExpose({ refresh, getActiveGroupId })
                     :on-open="openAddQuickLink"
                   />
                 </div>
-                <!-- 后一页占位（当没有后一页时） -->
+                <!-- 后一页占位（当没有后一页时�?-->
                 <div
                   v-else
                   class="quick-links__container quick-links__container--page quick-links__container--next quick-links__container--placeholder"
@@ -1186,7 +1120,7 @@ defineExpose({ refresh, getActiveGroupId })
               </div>
             </div>
           </div>
-          <!-- 右翻页按钮 -->
+          <!-- 右翻页按�?-->
           <button
             v-if="showPagination && !isOnlyTouchDevice"
             type="button"
@@ -1208,7 +1142,7 @@ defineExpose({ refresh, getActiveGroupId })
           </button>
         </div>
 
-        <!-- 页数指示器 -->
+        <!-- 页数指示�?-->
         <quick-links-pagination-dots
           v-if="!settings.quickLinks.useScroll"
           :current-page="currentGroupPageIndex"

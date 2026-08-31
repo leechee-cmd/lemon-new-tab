@@ -1,5 +1,3 @@
-import type { TopSites } from 'webextension-polyfill'
-
 import { useLanModeStore, type QuickLink, type QuickLinkGroup } from '@/shared/quickLinks'
 
 export interface QuickLinkDisplayItem {
@@ -11,33 +9,17 @@ export interface QuickLinkDisplayItem {
   groupId?: string
 }
 
-export function buildQuickLinkDisplayItems(
-  quickLinks: QuickLink[],
-  topSites: TopSites.MostVisitedURL[],
-): QuickLinkDisplayItem[] {
+export function buildQuickLinkDisplayItems(quickLinks: QuickLink[]): QuickLinkDisplayItem[] {
   const lanMode = useLanModeStore()
-  const quickLinksLen = quickLinks.length
-  const topSitesLen = topSites.length
-  const result: QuickLinkDisplayItem[] = Array.from({ length: quickLinksLen + topSitesLen })
+  const result: QuickLinkDisplayItem[] = Array.from({ length: quickLinks.length })
 
-  for (let i = 0; i < quickLinksLen; i++) {
+  for (let i = 0, len = quickLinks.length; i < len; i++) {
     const site = quickLinks[i]!
     result[i] = {
       url: lanMode.resolveLanLinkUrl(site),
       title: site.title,
       favicon: site.favicon,
       isPinned: true,
-      originalIndex: i,
-    }
-  }
-
-  for (let i = 0; i < topSitesLen; i++) {
-    const site = topSites[i]!
-    result[quickLinksLen + i] = {
-      url: site.url,
-      title: site.title || '',
-      favicon: site.favicon,
-      isPinned: false,
       originalIndex: i,
     }
   }
@@ -58,27 +40,6 @@ export function buildQuickLinkGroupItems(group: QuickLinkGroup): QuickLinkDispla
       isPinned: true,
       originalIndex: i,
       groupId: group.id,
-    }
-  }
-
-  return result
-}
-
-export function buildTopSiteDisplayItems(
-  topSites: TopSites.MostVisitedURL[],
-  groupId?: string,
-): QuickLinkDisplayItem[] {
-  const result: QuickLinkDisplayItem[] = Array.from({ length: topSites.length })
-
-  for (let i = 0, len = topSites.length; i < len; i++) {
-    const site = topSites[i]!
-    result[i] = {
-      url: site.url,
-      title: site.title || '',
-      favicon: site.favicon,
-      isPinned: false,
-      originalIndex: i,
-      groupId,
     }
   }
 

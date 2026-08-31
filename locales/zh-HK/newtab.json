@@ -14,7 +14,6 @@
     "moveGroupUp": "上移分組 {{name}}",
     "nextPage": "下一頁",
     "openActionsMenu": "開啟頁面操作選單",
-    "openBookmarks": "開啟書籤",
     "openLanModeMenu": "開啟內網/外網地址模式選單",
     "previousPage": "上一頁",
     "quickLinksGroups": "快速連結分組",
@@ -34,30 +33,7 @@
     "forceRemote": "強制公網"
   },
   "bookmark": {
-    "404": "乜都搵唔到",
-    "addToQuickLinks": "新增至快速連結",
-    "added": "已新增至快速連結",
-    "collapse": {
-      "all": "摺疊本層全部",
-      "other": "摺疊同層其他"
-    },
-    "delete": {
-      "confirm": "你確定要刪除「{{name}}」嗎？",
-      "confirmFolder": "「{{name}}」係一個資料夾，刪除佢會將其中所有書籤一齊刪除，確定嗎？",
-      "success": "已刪除「 {{title}}」"
-    },
-    "expandHint": "請展開側欄以查看書籤",
-    "moveError": "書籤移動失敗",
-    "sortBy": "排序方式",
-    "sortMode": {
-      "createdAsc": "由新到舊",
-      "createdDesc": "由舊到新",
-      "nameAsc": "名稱由A到Z",
-      "nameDesc": "名稱由Z到A",
-      "origin": "原始順序"
-    },
-    "title": "書籤",
-    "tooSmall": "側欄寬度過細"
+    "addToQuickLinks": "新增至快速連結"
   },
   "bootstrap": {
     "invalidVer": {
@@ -121,10 +97,6 @@
     "sponsor": "支持我們"
   },
   "notification": {
-    "bing": {
-      "message": "請查看開發者工具中的主控台提示。",
-      "title": "無法取得 Bing 壁紙"
-    },
     "faviconCacheHint": {
       "message": "可在「其他」設定中開啟圖示快取，以獲得更快的圖示載入速度",
       "title": "提示：圖示快取未開啟"
@@ -183,11 +155,6 @@
       "uploadFaviconAlert": "冇上載圖示時，建議開啟「設定-其他-圖示快取」以自動取得圖示"
     },
     "addLink": "新增連結",
-    "bookmark": {
-      "add": "加入書籤",
-      "existing": "此書籤已存在",
-      "success": "已加入「{{folder}}」"
-    },
     "editLink": "編輯連結",
     "groups": {
       "default": "預設",
@@ -198,18 +165,11 @@
       "selectMoveTarget": "選擇要移動到哪個分組",
       "selectPinTarget": "選擇要儲存到哪個分組",
       "selectTitle": "選擇分組",
-      "topSites": "最常瀏覽",
       "untitled": "分組 {{index}}"
     },
-    "hide": "隱藏",
     "moveError": "移動失敗",
     "moveLeft": "左移",
     "moveRight": "右移",
-    "hideTopMessage": {
-      "content": "已隱藏該最常瀏覽網站",
-      "restoreDefault": "還原預設",
-      "restoreSuccess": "已還原預設最常瀏覽網站"
-    },
     "pin": "釘選",
     "unpin": "取消釘選",
     "unpinMessage": "已取消釘選此連結",

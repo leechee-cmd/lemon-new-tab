@@ -1,6 +1,4 @@
 // shared/media/faviconFetch.ts
-import { browser } from '#imports'
-
 import {
   clearFaviconCacheEntries,
   FAVICON_CACHE_TTL,
@@ -11,8 +9,6 @@ import {
   setFaviconCacheEntry,
   type FaviconCacheEntry,
 } from './faviconCache'
-
-const isChromium = import.meta.env.CHROME || import.meta.env.EDGE || import.meta.env.OPERA
 
 // ---------------------------------------------------------------------------
 // 图标缓存总开关（由设置控制，默认关闭）
@@ -329,20 +325,16 @@ function probeImageUrl(url: string, signal?: AbortSignal): Promise<boolean> {
 // 获取策略
 // ---------------------------------------------------------------------------
 
-/** 使用 Chromium 内部 favicon API 快速读取浏览器已有图标。 */
-async function fetchViaChromeFaviconApi(pageUrl: string): Promise<string | null> {
+/** 用公共 favicon 服务兜底（<img> 通过 Image 探测，不受 CORS 限制）。 */
+async function probePublicFaviconService(pageUrl: string): Promise<string | null> {
   try {
-    const apiUrl = new URL(chrome.runtime.getURL('/_favicon/'))
-    apiUrl.searchParams.set('pageUrl', pageUrl)
-    apiUrl.searchParams.set('size', '128')
-    const resp = await fetch(apiUrl.toString())
-    if (!resp.ok) return null
-    const blob = await resp.blob()
-    if (blob.size === 0) return null
-    return blobToDataURL(blob)
+    const host = new URL(pageUrl).hostname
+    const url = `https://icons.duckduckgo.com/ip3/${host}.ico`
+    if (await probeImageUrl(url)) return url
   } catch {
-    return null
+    // 忽略探测失败
   }
+  return null
 }
 
 /** 策略 B：尝试常见的 favicon 路径并获取 base64。
@@ -491,15 +483,11 @@ async function doFetch(pageUrl: string, origin: string): Promise<string | null> 
     let data: string | null = null
     let type: 'base64' | 'url' = 'base64'
 
-    // 缓存关闭时优先复用浏览器已经拥有的图标，避免每次新标签页都重新发起网络请求。
-    if (!_cacheEnabled && isChromium) {
-      data = await fetchViaChromeFaviconApi(pageUrl)
-    }
+    // 缓存关闭时优先复用浏览器已拥有的图标，避免每次新标签页都重新发起网络请求。
+    // Web 端无 Chrome 内部 favicon API，直接跳过该策略。
 
-    // Chromium 内部接口失败或其他浏览器才需要检查泛域名权限。
-    const hasHostPerm = data
-      ? false
-      : await browser.permissions.contains({ origins: ['*://*/*'] }).catch(() => false)
+    // Web 端无泛域名主机权限，不执行需要该权限的抓取，仅保留无权限策略。
+    const hasHostPerm = false
 
     // 策略 A：读取页面声明的 icon 链接（需要主机权限）
     if (!data && hasHostPerm) {
@@ -514,6 +502,12 @@ async function doFetch(pageUrl: string, origin: string): Promise<string | null> 
     // 策略 C：通过 Image 探测（无需 CORS，仅返回 URL）
     if (!data) {
       data = await probeViaImageElement(pageUrl)
+      if (data) type = 'url'
+    }
+
+    // 策略 D：公共 favicon 服务兜底
+    if (!data) {
+      data = await probePublicFaviconService(pageUrl)
       if (data) type = 'url'
     }
 
@@ -562,7 +556,7 @@ export async function warmFaviconCache(
   }
 
   // 决定最终要写入缓存的数据：优先尝试将 URL 转为 base64（需要泛域名主机权限）
-  let finalData = faviconData
+  const finalData = faviconData
   let finalType: FaviconCacheEntry['type'] = type
 
   // 已经是 base64 数据则直接使用
@@ -571,32 +565,7 @@ export async function warmFaviconCache(
   } else {
     // 对于 URL 类型，优先尝试抓取传入的 faviconData（它通常是具体图片的 URL），
     // 将其转换为 base64 后再存储。不要调用 fetchViaDirectUrls 去尝试常见路径。
-    try {
-      const hasHostPerm = await browser.permissions
-        .contains({ origins: ['*://*/*'] })
-        .catch(() => false)
-
-      if (hasHostPerm) {
-        try {
-          const targetUrl = new URL(faviconData, pageUrl)
-          const resp = await fetch(targetUrl, { signal: AbortSignal.timeout(5000) })
-          if (resp.ok) {
-            const contentType = resp.headers.get('content-type') ?? ''
-            if (!contentType.startsWith('text/') && !contentType.includes('html')) {
-              const blob = await resp.blob()
-              if (blob.size > 0) {
-                finalData = await blobToDataURL(blob)
-                finalType = 'base64'
-              }
-            }
-          }
-        } catch {
-          // 直接抓取失败则忽略，回落使用传入的 URL
-        }
-      }
-    } catch {
-      // 忽略任何错误，回落到传入的 faviconData
-    }
+    // Web 端无泛域名主机权限，直接回落到传入的 URL。
   }
 
   if (generationAtStart === cacheGeneration) {

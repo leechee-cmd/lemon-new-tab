@@ -6,7 +6,6 @@ import { useWallpaperUrlStore } from './wallpaperUrlStore'
 
 export * from './wallpaperStorge'
 export * from './wallpaperUrlStore'
-export * from './bingWallpaper'
 export * from './onlineCacheStore'
 
 export async function uploadBackground(imageFile: File, isDarkMode = false) {

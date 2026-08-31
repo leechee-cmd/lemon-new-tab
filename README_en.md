@@ -1,4 +1,4 @@
-[![lemon-new-tab](https://socialify.git.ci/redlnn/lemon-new-tab/image?custom_description=A+simple+local+new+tab+extension&description=1&font=Jost&language=1&logo=https%3A%2F%2Fraw.githubusercontent.com%2FRedlnn%2Flemon-new-tab%2Frefs%2Fheads%2Fmaster%2Fassets%2Ficon.svg&owner=1&pattern=Circuit+Board&stargazers=1&theme=Auto)](https://lemon.redln.top)
+[![lemon-new-tab](https://socialify.git.ci/redlnn/lemon-new-tab/image?custom_description=A+simple+local+new+tab+page&description=1&font=Jost&language=1&logo=https%3A%2F%2Fraw.githubusercontent.com%2FRedlnn%2Flemon-new-tab%2Frefs%2Fheads%2Fmaster%2Fassets%2Ficon.svg&owner=1&pattern=Circuit+Board&stargazers=1&theme=Auto)](https://lemon.redln.top)
 
 <div align="center">
 
@@ -9,33 +9,29 @@
 
 ## Installation
 
-The extension is now available on
-[Chrome Web Store](https://chromewebstore.google.com/detail/bhbpmpflnpnkjanfgbjjhldccbckjohb),
-[Microsoft Edge Add-Ons](https://microsoftedge.microsoft.com/addons/detail/keikkgfgidagjlicckkangkfgnbdjdnh), and
-[Firefox Browser Add-Ons](https://addons.mozilla.org/firefox/addon/lemon-new-tab/).
+Lemon New Tab is now a **pure web page** — no extension installation required:
 
-> You can also clone this repo and build it manually.
+Visit <https://lemon.redln.top> directly. A reasonably recent version of a modern browser is recommended.
+
+> You can also clone this repository and build a copy to deploy on your own server or any static hosting.
 
 ## Features
 
 Make every new tab feel fast, effortless, and enjoyable.
 
-Lemon New Tab is a local-first, open-source browser extension with no additional account required. Your core settings and personalized content stay in your browser, giving you fast loading, a clean interface, and no distracting news feed or ads.
+Lemon New Tab is a local-first, open-source new tab page (pure web version) with no account required. Your core settings and personalized content stay in your browser, giving you fast loading, a clean interface, and no distracting news feed or ads.
 
 **🔍 Flexible Search**  
-&emsp;&ensp;Use Bing, Google, Baidu, DuckDuckGo, Yandex, and other search engines. Search suggestions, search history, and custom search engines help you quickly find what you need using a familiar workflow.
+&emsp;&ensp;Use Google, Bing, Baidu, DuckDuckGo, Yandex, and other search engines. Search suggestions, search history, and custom search engines help you quickly find what you need using a familiar workflow.
 
 **🧭 Quick Links**  
 &emsp;&ensp;Automatically display your most-visited sites, or add, pin, and rearrange your own links. Organize them into groups, browse with pages or scrolling, and switch to Dock or Launchpad layouts to keep favorite sites within easy reach.
 
-**🔖 Browser Bookmarks**  
-&emsp;&ensp;Search, open, edit, delete, and rearrange your browser bookmarks without leaving the new tab page.
-
 **🖼️ Rich Wallpaper Options**  
-&emsp;&ensp;Use Bing's daily image, an online image API, or local images and videos as your wallpaper. Extensive customization options help bring your background to life.
+&emsp;&ensp;Built-in online wallpaper sources such as Lorem Picsum and Peapix, custom image URLs, and local images and videos as your wallpaper. Daily auto-rotation and manual refresh help bring your background to life.
 
 **🎨 Highly Customizable**  
-&emsp;&ensp;A wide range of options lets you customize the layout, theme colors, and the position and appearance of individual components. Dynamic theme colors can even be extracted from your wallpaper to create a naturally coordinated page.
+&emsp;&ensp;A wide range of options lets you customize the layout, theme colors, and the position and appearance of individual components.
 
 **🕒 Useful Without Distractions**  
 &emsp;&ensp;Display the time, date, seconds, and lunar calendar. Enjoy a daily poem, motivational quote, or your own custom text, with one-click copying whenever you want to save it.
@@ -44,10 +40,10 @@ Lemon New Tab is a local-first, open-source browser extension with no additional
 &emsp;&ensp;Continuously optimized for faster loading and lower resource usage, with responsive layouts and independent controls for performance and visual effects.
 
 **🔄 Easy Backup**
-&emsp;&ensp;Import or export extension settings to back up your current data or move it to another device.
+&emsp;&ensp;Import or export settings to back up your current data or move it to another device.
 
 **⚛️ Built for Trust**  
-&emsp;&ensp;Lemon New Tab makes all of its source code available under the AGPL-3.0 license and does not actively collect or send private data. It supports Chrome, Edge, and Firefox, providing a consistent experience across browsers.
+&emsp;&ensp;Lemon New Tab makes all of its source code available under the AGPL-3.0 license and does not actively collect or send private data. No installation required — it works on modern browsers such as Chrome, Edge, and Firefox, providing a consistent experience across browsers.
 
 > [!NOTE]  
 > Contributions via PRs are welcome. Issues may not always be implemented.
@@ -58,17 +54,16 @@ Lemon New Tab is a local-first, open-source browser extension with no additional
 
 ## Browser Compatibility
 
-|                 Browser                  | Supported |              Notes               |
-| :--------------------------------------: | :-------: | :------------------------------: |
-|                  Chrome                  |    ✅     |       Chrome 116 and above       |
-|                   Edge                   |    ✅     |        Edge 116 and above        |
-|                 Firefox                  |    ✅     |      Firefox 128 and above       |
-|              Firefox Mobile              |    ❌     | Unable to replace native new tab |
-|               Edge Mobile                |    ❌     | Unable to replace native new tab |
-| Other Chromium-based<br/>Mobile Browsers |    ❓     |             untested             |
+|                 Browser                  | Supported |             Notes              |
+| :--------------------------------------: | :-------: | :-----------------------------: |
+|                  Chrome                  |    ✅     | Chrome 116 and above           |
+|                   Edge                   |    ✅     | Edge 116 and above             |
+|                 Firefox                  |    ✅     | Firefox 128 and above          |
+| Other Chromium-based Desktop Browsers    |    ✅     | Expected to work               |
+|                 Mobile                   |    ❓     | Not specifically tested        |
 
 > Lemon Start Page adapts to both landscape and portrait modes,
-> but has not been tested or published on mobile browsers, so compatibility is not guaranteed.
+> but has not been specifically tested on mobile browsers, so compatibility is not guaranteed.
 
 ## Preview
 
@@ -101,29 +96,16 @@ This project is built with Vue 3 (TypeScript) + Element Plus.
 
 ### Build
 
-#### For Chrome
-
 ```sh
 git clone https://github.com/Redlnn/lemon-new-tab.git
 cd lemon-new-tab
 pnpm install
-# pnpm dev  # Run development mode, opens in a standalone browser
-# Build
-pnpm build  # Build as (unminified) Chrome extension
-pnpm zip    # Package Chrome extension
+pnpm dev  # Local development preview
+pnpm build  # Build to dist-web/, a pure static site
+pnpm preview  # Preview the build output locally
 ```
 
-#### For Firefox
-
-```sh
-git clone https://github.com/Redlnn/lemon-new-tab.git
-cd lemon-new-tab
-pnpm install
-# pnpm dev  # Run development mode, opens in a standalone browser
-# Build
-pnpm build:firefox  # Build as (unpacked & unsigned) Firefox extension
-pnpm zip:firefox    # Package Firefox extension
-```
+> The build output is a pure static bundle (`dist-web/`) that can be deployed to any static hosting, such as GitHub Pages, Vercel, or Nginx.
 
 ## Known Issues
 

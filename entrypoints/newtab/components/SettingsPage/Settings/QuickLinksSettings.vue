@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { useTranslation } from 'i18next-vue'
-import RestoreRound from '~icons/ic/round-restore'
 
 import { useSettingsStore } from '@/shared/settings'
 
-import { blockedTopSitesStorage } from '@newtab/shared/storages/topSitesStorage'
 import { isHasTouchDevice } from '@newtab/shared/touch'
 
 import { useQuickLinksGroupingChange } from '../composables/useQuickLinksGroupingChange'
@@ -16,11 +14,6 @@ const { t } = useTranslation('settings')
 const isChromium = import.meta.env.CHROME || import.meta.env.EDGE || import.meta.env.OPERA
 const settings = useSettingsStore()
 const { handleGroupingChange } = useQuickLinksGroupingChange()
-
-async function restoreDefaultTopSites() {
-  await blockedTopSitesStorage.setValue([])
-  location.reload()
-}
 
 function handleUseScrollChange(enabled: boolean | string | number) {
   if (enabled) {
@@ -55,10 +48,6 @@ const alertType = computed(() => (settings.theme.colorfulMode ? 'primary' : 'inf
         <div class="settings__item settings__item--horizontal">
           <div class="settings__label">{{ t('quickLinks.showOnSearchFocus') }}</div>
           <el-switch v-model="settings.quickLinks.showOnSearchFocus" />
-        </div>
-        <div class="settings__item settings__item--horizontal">
-          <div class="settings__label">{{ t('quickLinks.topSites') }}</div>
-          <el-switch v-model="settings.quickLinks.topSites" />
         </div>
         <div class="settings__item settings__item--horizontal settings__item--with-note">
           <div class="settings__label">{{ t('quickLinks.grouping') }}</div>
@@ -97,10 +86,7 @@ const alertType = computed(() => (settings.theme.colorfulMode ? 'primary' : 'inf
       </div>
       <div class="settings__item settings__item--horizontal">
         <div class="settings__label">{{ t('quickLinks.pinnedIcon') }}</div>
-        <el-switch
-          v-model="settings.quickLinks.pinnedIcon"
-          :disabled="!settings.quickLinks.topSites"
-        />
+        <el-switch v-model="settings.quickLinks.pinnedIcon" />
       </div>
       <div class="settings__item settings__item--horizontal">
         <div class="settings__label">{{ t('common.openInNewTab') }}</div>
@@ -247,29 +233,6 @@ const alertType = computed(() => (settings.theme.colorfulMode ? 'primary' : 'inf
           :show-input-controls="false"
           :show-tooltip="false"
         />
-      </div>
-    </SettingsSection>
-
-    <SettingsSection
-      v-if="settings.quickLinks.enabled"
-      :title="t('common.sections.data')"
-      :summary="t('common.sections.summary.data')"
-    >
-      <div class="settings__item settings__item--horizontal">
-        <div class="settings__label">{{ t('quickLinks.restoreDefault') }}</div>
-        <el-popconfirm
-          width="220"
-          :confirm-button-text="t('newtab:common.confirm')"
-          :cancel-button-text="t('newtab:common.no')"
-          :icon="RestoreRound"
-          icon-color="#626AEF"
-          :title="t('quickLinks.restoreDefaultTitle')"
-          @confirm="restoreDefaultTopSites()"
-        >
-          <template #reference>
-            <el-button :icon="RestoreRound" circle />
-          </template>
-        </el-popconfirm>
       </div>
     </SettingsSection>
   </div>

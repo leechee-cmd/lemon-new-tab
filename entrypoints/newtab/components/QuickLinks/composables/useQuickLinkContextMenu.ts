@@ -1,13 +1,8 @@
-import { useTranslation } from 'i18next-vue'
-
-import { browser } from '#imports'
-
 import { useQuickLinksStore, type QuickLinkTarget } from '@/shared/quickLinks'
 
 import { isSafeUrl } from '@newtab/shared/utils'
 
 import { openQuickLinkUrl, pinQuickLink, removeQuickLink } from '../utils/quickLink'
-import { blockSite } from '../utils/topSites'
 
 export type CtxQuickLinkItem = {
   url: string
@@ -23,7 +18,6 @@ export function useQuickLinkContextMenu(options: {
   onPin?: (item: CtxQuickLinkItem) => Promise<void> | void
   onMove?: (item: CtxQuickLinkItem) => Promise<void> | void
 }) {
-  const { t } = useTranslation()
   const quickLinksStore = useQuickLinksStore()
   const { refreshFn, onOpenEditDialog } = options
 
@@ -52,31 +46,12 @@ export function useQuickLinkContextMenu(options: {
     if (ctxItem.value) openQuickLinkUrl(ctxItem.value.url, '_blank')
   }
 
-  const ctxOpenInNewWindow = (): void => {
-    if (ctxItem.value && isSafeUrl(ctxItem.value.url))
-      browser.windows.create({ url: ctxItem.value.url })
-  }
+const ctxOpenInNewWindow = (): void => {
+  if (ctxItem.value && isSafeUrl(ctxItem.value.url)) window.open(ctxItem.value.url, '_blank')
+}
 
   const ctxCopyLink = (): void => {
     if (ctxItem.value) navigator.clipboard.writeText(ctxItem.value.url)
-  }
-
-  const ctxCreateBookmark = async (): Promise<void> => {
-    if (!ctxItem.value) return
-    const { url, title } = ctxItem.value
-    if (!isSafeUrl(url)) return
-    const res = await browser.bookmarks.search({ url })
-    if (res.length !== 0) {
-      ElMessage.info(t('quickLinks.bookmark.existing'))
-      return
-    }
-    browser.bookmarks.create({ title, url }, (created) => {
-      if (!created.parentId) return
-      chrome.bookmarks.get(created.parentId, (nodes) => {
-        const folderTitle = nodes?.[0]?.title ?? null
-        ElMessage.success(t('quickLinks.bookmark.success', { folder: folderTitle }))
-      })
-    })
   }
 
   const ctxUnpin = async (): Promise<void> => {
@@ -104,12 +79,6 @@ export function useQuickLinkContextMenu(options: {
     await options.onMove(ctxItem.value)
   }
 
-  const ctxBlockSite = async (): Promise<void> => {
-    if (!ctxItem.value || ctxItem.value.isPinned) return
-    await blockSite(ctxItem.value.url, refreshFn)
-    refreshFn()
-  }
-
   const ctxEdit = (): void => {
     if (!ctxItem.value?.isPinned) return
     onOpenEditDialog?.(
@@ -126,11 +95,9 @@ export function useQuickLinkContextMenu(options: {
     ctxOpenInNewTab,
     ctxOpenInNewWindow,
     ctxCopyLink,
-    ctxCreateBookmark,
     ctxUnpin,
     ctxPin,
     ctxMove,
-    ctxBlockSite,
     ctxEdit,
   }
 }

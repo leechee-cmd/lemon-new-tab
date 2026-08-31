@@ -5,9 +5,7 @@ import LanguageDetector from 'i18next-browser-languagedetector'
 import I18NextVue from 'i18next-vue'
 import resources from 'virtual:i18next-loader'
 
-import { browser } from 'wxt/browser'
-
-export const getLang = () => i18next.language || browser.i18n.getUILanguage()
+export const getLang = () => i18next.language || navigator.language
 export const isChinese = ref(getLang().startsWith('zh'))
 
 function isHKorMO() {

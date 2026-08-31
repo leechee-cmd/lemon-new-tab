@@ -1,21 +1,14 @@
 <script setup lang="ts">
 import { useTimeoutFn } from '@vueuse/core'
 
-import i18next from 'i18next'
 import { useTranslation } from 'i18next-vue'
 import CloudOffRound from '~icons/ic/round-cloud-off'
 import ComputerRound from '~icons/ic/round-computer'
 import DarkModeRound from '~icons/ic/round-dark-mode'
 import LightModeRound from '~icons/ic/round-light-mode'
 
-import { BgType } from '@/shared/enums'
 import { defaultSettings, useSettingsStore } from '@/shared/settings'
 
-import {
-  PermissionContext,
-  PermissionResult,
-  usePermission,
-} from '@newtab/composables/usePermission'
 import { colorMode as mode, preferredDark } from '@newtab/shared/colorMode'
 
 import SettingsSection from './SettingsSection.vue'
@@ -95,54 +88,6 @@ function setColorMode(newMode: 'auto' | 'dark' | 'light') {
   currentMode.value = newMode
 }
 
-const { checkAndRequestPermission } = usePermission()
-
-const beforeMonetChange = async () => {
-  // 已经开了就是想要关，所以允许关
-  if (settings.theme.monetColor) return true
-  // 无背景不允许开
-  if (settings.background.bgType === BgType.None) return false
-  // 必应随便开，本地壁纸必须是图片才能开
-  if (settings.background.bgType === BgType.Bing) return true
-  // 本地壁纸必须是图片才能开
-  if (settings.background.bgType === BgType.Local) {
-    if (
-      settings.background.local.mediaType === 'image' ||
-      settings.background.localDark.mediaType === 'image'
-    )
-      return true
-    else return false
-  }
-
-  // 剩下在线壁纸
-
-  // 没有在线壁纸url不给开
-  if (!settings.background.online.url) return false
-  // 开了缓存说明有权限不再申请
-  if (settings.background.online.cache.enabled) return true
-
-  try {
-    await ElMessageBox.confirm(
-      t('theme.monet.askEnableCache.message'),
-      t('theme.monet.askEnableCache.title'),
-      { type: 'warning' },
-    )
-  } catch {
-    // 用户取消或关闭对话框：不允许开启
-    return false
-  }
-
-  // 用户同意开启缓存
-  const { hostname } = new URL(settings.background.online.url)
-  const result = await checkAndRequestPermission(hostname, true, PermissionContext.MonetColor)
-  const res = result === PermissionResult.GrantedAll
-
-  if (res) settings.background.online.cache.enabled = true
-  else ElMessage.warning(i18next.t('settings:background.warning.monetDisabled'))
-
-  return res
-}
-
 const tagType = computed(() => (settings.theme.colorfulMode ? 'primary' : 'info'))
 </script>
 
@@ -197,25 +142,8 @@ const tagType = computed(() => (settings.theme.colorfulMode ? 'primary' : 'info'
       :title="t('common.sections.appearance')"
       :summary="t('common.sections.summary.appearance')"
     >
-      <div class="settings__item settings__item--horizontal settings__item--with-note">
-        <div class="settings__label">
-          {{ t('theme.monet.label') }}
-          <cloud-off-round />
-        </div>
-        <el-switch
-          v-model="settings.theme.monetColor"
-          :disabled="settings.background.bgType === BgType.None"
-          :before-change="beforeMonetChange"
-        />
-        <p class="settings__item-note">{{ t('theme.monet.desc') }}</p>
-      </div>
       <div class="settings__item settings__item--horizontal">
-        <div
-          class="settings__label"
-          :style="{
-            color: settings.theme.monetColor ? 'var(--el-text-color-disabled)' : undefined,
-          }"
-        >
+        <div class="settings__label">
           {{ t('theme.primaryColor') }}
         </div>
         <div class="settings__theme">
@@ -224,7 +152,6 @@ const tagType = computed(() => (settings.theme.colorfulMode ? 'primary' : 'info'
             style="width: 183px"
             popper-class="settings-item-popper"
             :show-arrow="false"
-            :disabled="settings.theme.monetColor"
           >
             <el-option-group
               v-for="group in predefineColorsMap"
@@ -247,7 +174,6 @@ const tagType = computed(() => (settings.theme.colorfulMode ? 'primary' : 'info'
           <el-color-picker
             v-model="settings.theme.primaryColor"
             :predefine="predefineColors"
-            :disabled="settings.theme.monetColor"
           />
         </div>
       </div>

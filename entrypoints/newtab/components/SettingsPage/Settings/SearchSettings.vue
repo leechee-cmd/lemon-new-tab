@@ -15,6 +15,17 @@ const { t } = useTranslation('settings')
 
 const settings = useSettingsStore()
 
+// Web 端联想接口仅支持 Google / 百度；兼容旧数据中可能残留的其它值。
+const suggestionApi = computed({
+  get: () =>
+    settings.search.suggestionAPI in searchSuggestAPIs
+      ? settings.search.suggestionAPI
+      : 'google',
+  set: (value) => {
+    settings.search.suggestionAPI = value as keyof typeof searchSuggestAPIs
+  },
+})
+
 const openSearchEnginePreference = inject(OPEN_SEARCH_ENGINE_PREFERENCE)
 const canRestoreBuiltInEngines = computed(
   () =>
@@ -73,7 +84,7 @@ function restoreBuiltInSearchEngines() {
         <div class="settings__item settings__item--horizontal">
           <div class="settings__label">{{ t('search.searchSuggestionProvider') }}</div>
           <el-select
-            v-model="settings.search.suggestionAPI"
+            v-model="suggestionApi"
             :disabled="!settings.search.suggestionsEnabled"
             style="width: 100px"
             fit-input-width

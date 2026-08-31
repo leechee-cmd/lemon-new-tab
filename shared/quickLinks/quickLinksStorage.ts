@@ -1,5 +1,4 @@
 import { storage } from '#imports'
-import { browser } from 'wxt/browser'
 
 export interface QuickLink {
   url: string
@@ -33,8 +32,7 @@ export async function getQuickLinksStorageValue(): Promise<QuickLinksData> {
   const current = await storage.getItem<QuickLinksData>(quickLinksStorage.key)
   if (current !== null) return current
 
-  const legacy = await browser.storage.local.get('bookmark')
-  const legacyValue = legacy.bookmark
+  const legacyValue = await storage.getItem<unknown>('local:bookmark', { fallback: null })
   if (
     legacyValue &&
     typeof legacyValue === 'object' &&

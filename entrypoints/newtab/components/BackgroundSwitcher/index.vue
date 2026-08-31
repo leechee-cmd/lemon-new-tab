@@ -1,29 +1,19 @@
 <script setup lang="ts">
 import './bg-switcher.scss'
-import { useDark, useElementSize } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 
 import type { UploadRequestOptions } from 'element-plus'
 import { useTranslation } from 'i18next-vue'
 import CloseRound from '~icons/ic/round-close'
-import DownloadRound from '~icons/ic/round-download'
-import FolderCopyRound from '~icons/ic/round-folder-copy'
-import InsertLinkRound from '~icons/ic/round-insert-link'
-import LaunchRound from '~icons/ic/round-launch'
-import TripOriginRound from '~icons/ic/round-trip-origin'
 import UploadRound from '~icons/ic/round-upload'
-import Brightness6Twotone from '~icons/ic/twotone-brightness-6'
 import CloudQueueTwotone from '~icons/ic/twotone-cloud-queue'
-import DarkModeTwotone from '~icons/ic/twotone-dark-mode'
-import HideImageTwotone from '~icons/ic/twotone-hide-image'
-import LightModeTwotone from '~icons/ic/twotone-light-mode'
 
 import { BgType } from '@/shared/enums'
-import { type BingWallpaperResolution, useSettingsStore } from '@/shared/settings'
+import { useSettingsStore } from '@/shared/settings'
 
-import Bing from '@newtab/assets/bing_gray.svg'
 import BaseDialog from '@newtab/components/BaseDialog.vue'
-import { bingWallpaperURLGetter, useWallpaperUrlStore } from '@newtab/shared/wallpaper'
+import { useWallpaperUrlStore } from '@newtab/shared/wallpaper'
+import { fetchOnlineSourceUrl } from '@newtab/shared/wallpaper/onlineSource'
 
 import useBackgroundSwitcher from './useBackgroundSwitcher'
 
@@ -31,58 +21,10 @@ const { t } = useTranslation('settings')
 
 const requestedVisible = defineModel<boolean>({ required: true })
 const opened = ref(false)
-let openRequestVersion = 0
-
-watch(
-  requestedVisible,
-  async (visible) => {
-    const requestVersion = ++openRequestVersion
-    if (!visible) {
-      opened.value = false
-      return
-    }
-
-    // Bing 背景未启用时，Background 不会初始化缓存；弹窗需要在展示前自行恢复预览。
-    try {
-      await bingWallpaperURLGetter.init()
-    } catch (error) {
-      console.error('[background-switcher] Failed to initialize Bing wallpaper preview:', error)
-    }
-
-    if (requestVersion === openRequestVersion && requestedVisible.value) {
-      opened.value = true
-    }
-  },
-  { immediate: true },
-)
-
-watch(opened, (visible) => {
-  if (!visible && requestedVisible.value) requestedVisible.value = false
-})
 
 const settings = useSettingsStore()
 const wallpaperUrlStore = useWallpaperUrlStore()
 const { lightUrl: localBgUrl, darkUrl: localDarkBgUrl } = storeToRefs(wallpaperUrlStore)
-
-const isDark = useDark()
-const customLocalContentRef = useTemplateRef('customLocalContentRef')
-
-const { height: customLocalContentHeight } = useElementSize(customLocalContentRef)
-
-function open(url: string) {
-  if (url.length === 0) return
-  window.open(url, '_blank')
-}
-
-const isLocalBg = computed(() => settings.background.bgType === BgType.Local)
-const isOnlineBg = computed(() => settings.background.bgType === BgType.Online)
-const isNoneBg = computed(() => settings.background.bgType === BgType.None)
-const isVideoBg = computed(
-  () =>
-    isLocalBg.value &&
-    (settings.background.local.mediaType === 'video' ||
-      settings.background.localDark.mediaType === 'video'),
-)
 
 const {
   isDarkBg,
@@ -94,298 +36,233 @@ const {
   deleteLocalBg,
   tempOnlineUrl,
   changeOnlineBg,
-  onlineImageWarn,
 } = useBackgroundSwitcher()
 
-function handleNoneBg() {
-  settings.background.bgType = BgType.None
-  if (settings.theme.monetColor) {
-    ElMessage.info(t('background.warning.monetColorDisabled'))
-    settings.theme.monetColor = false
-  }
-}
+type TabKey = 'online' | 'link' | 'local'
+const activeTab = ref<TabKey>('online')
+const previewLoading = ref(false)
+
+const selectedSource = computed<'picsum' | 'peapix'>(() =>
+  settings.background.online.source === 'peapix' ? 'peapix' : 'picsum',
+)
 
 const isShowDeleteIcon = computed(() =>
   Boolean(isDarkBg.value ? settings.background.localDark.id : settings.background.local.id),
 )
-const bingWallpaperSrc = bingWallpaperURLGetter.getBgUrl()
-const bingWallpaperInfo = bingWallpaperURLGetter.getInfo()
-const isBingResolutionLoading = ref(false)
-const bingResolutionOptions: ReadonlyArray<{
-  label: string
-  value: BingWallpaperResolution
-}> = [
-  { label: '1080P', value: '1080p' },
-  { label: '4K (UHD)', value: 'uhd' },
-]
 
-async function handleBingResolutionChange(resolution: BingWallpaperResolution) {
-  if (isBingResolutionLoading.value || resolution === settings.background.bing.resolution) return
+const previewSrc = computed(() => {
+  if (activeTab.value === 'local') {
+    return isDarkBg.value ? localDarkBgUrl.value : localBgUrl.value
+  }
+  return settings.background.online.url
+})
 
-  isBingResolutionLoading.value = true
+async function applyOnlineSource(source: 'picsum' | 'peapix') {
+  previewLoading.value = true
   try {
-    const cached = await bingWallpaperURLGetter.setResolution(resolution)
-    if (!cached) ElMessage.warning(t('background.warning.bingResolutionCacheFailed'))
+    const url = await fetchOnlineSourceUrl(source)
+    if (!url) throw new Error('Empty online wallpaper URL')
+
+    const previousUrl = settings.background.online.url
+    // 换新图前记录上一张，便于切换后挽回。
+    if (previousUrl && previousUrl !== url) settings.background.online.previousUrl = previousUrl
+    settings.background.online.source = source
+    settings.background.online.url = url
+    settings.background.online.lastAutoRefresh = Date.now()
+    settings.background.bgType = BgType.Online
   } catch (error) {
-    console.error('[background-switcher] Failed to change Bing wallpaper resolution:', error)
-    ElMessage.warning(t('background.warning.bingResolutionCacheFailed'))
+    console.error('[background] Failed to apply online wallpaper:', error)
+    ElMessage.error(t('background.preset.fetchFailed'))
   } finally {
-    isBingResolutionLoading.value = false
+    previewLoading.value = false
   }
 }
 
-function switchToBing() {
-  bingWallpaperURLGetter.refresh(true)
-  settings.background.bgType = BgType.Bing
+function restorePrevious() {
+  const online = settings.background.online
+  if (!online.previousUrl) return
+  const prev = online.previousUrl
+  online.previousUrl = online.url
+  online.url = prev
+  online.lastAutoRefresh = Date.now()
+  settings.background.bgType = BgType.Online
 }
 
-function beforeLocalBgSwitch() {
-  if (isDarkBg.value) return true
-  return settings.background.local.id.length > 0
+function chooseSource(source: 'picsum' | 'peapix') {
+  void applyOnlineSource(source)
+  if (activeTab.value === 'link') activeTab.value = 'online'
 }
+
+function swapPreview() {
+  void applyOnlineSource(selectedSource.value)
+}
+
+function switchTab(tab: TabKey) {
+  activeTab.value = tab
+}
+
+watch(
+  requestedVisible,
+  (visible) => {
+    if (!visible) {
+      opened.value = false
+      return
+    }
+    const online = settings.background.online
+    activeTab.value =
+      settings.background.bgType === BgType.Local
+        ? 'local'
+        : online.source === 'custom'
+          ? 'link'
+          : 'online'
+    if (online.source === 'custom') tempOnlineUrl.value = online.url
+    opened.value = true
+  },
+  { immediate: true },
+)
+
+watch(opened, (visible) => {
+  if (!visible && requestedVisible.value) requestedVisible.value = false
+})
 </script>
 
 <template>
-  <base-dialog
-    v-model="opened"
-    :title="t('background.preferenceTitle')"
-    container-class="bg-switcher__dialog"
-  >
-    <!-- Bing 每日壁纸 -->
-    <div class="bg-switcher-title bg-switcher-title--today">
-      <span>{{ t('background.today') }}</span>
-      <div class="bg-switcher-resolution">
-        <span>{{ t('background.resolution') }}</span>
-        <el-select
-          class="bg-switcher-resolution__select"
-          :model-value="settings.background.bing.resolution"
-          :aria-label="t('background.resolution')"
-          :disabled="isBingResolutionLoading"
-          :loading="isBingResolutionLoading"
-          size="small"
-          @change="handleBingResolutionChange"
-        >
-          <el-option
-            v-for="option in bingResolutionOptions"
-            :key="option.value"
-            :label="option.label"
-            :value="option.value"
-          />
-        </el-select>
+  <base-dialog v-model="opened" container-class="bg-switcher__dialog" :show-close="false">
+    <div class="bg-switcher">
+      <div class="bg-switcher__header">
+        <div class="bg-switcher__title">{{ t('background.preferenceTitle') }}</div>
+        <div class="bg-switcher__subtitle">{{ t('background.preferenceSubtitle') }}</div>
       </div>
-    </div>
-    <div class="bg-switcher-container">
-      <div class="bg-switcher-preview" style="cursor: pointer" @click="switchToBing">
-        <el-image :src="bingWallpaperSrc">
-          <template #error>
-            <div class="bg-switcher-preview__error">
-              <el-icon><hide-image-twotone /></el-icon>
+
+      <div class="bg-switcher__preview">
+        <template v-if="activeTab === 'local'">
+          <el-upload
+            class="bg-switcher-preview-upload"
+            :show-file-list="false"
+            :http-request="(option: UploadRequestOptions) => handleUpload(option)"
+            :before-upload="beforeBackgroundUpload"
+            accept="image/*,video/*"
+          >
+            <img v-if="previewSrc" :src="previewSrc" alt="" />
+            <div v-else class="bg-switcher__preview-placeholder">
+              <el-icon><upload-round /></el-icon>
             </div>
-          </template>
-        </el-image>
-      </div>
-      <div class="bg-switcher-content-wrapper">
-        <div class="bg-switcher-content">
-          <div class="bg-switcher-content-title">{{ bingWallpaperInfo.title }}</div>
-          <el-text line-clamp="2" class="bg-switcher-content-description">
-            {{ bingWallpaperInfo.copyright }}
-          </el-text>
-          <el-space class="bg-switcher-content-actions">
-            <el-button
-              bg
-              text
-              :icon="DownloadRound"
-              @click="open(bingWallpaperURLGetter.uhdUrl.value)"
-            ></el-button>
-            <el-button
-              bg
-              text
-              :icon="LaunchRound"
-              @click="open(bingWallpaperInfo.copyrightlink)"
-            ></el-button>
-            <div class="bg-switcher-bing">{{ t('background.bingFrom') }}</div>
-          </el-space>
-        </div>
-      </div>
-    </div>
-    <!-- 自定义壁纸 -->
-    <div class="bg-switcher-title">{{ t('background.custom') }}</div>
-    <div class="bg-switcher-container bg-switcher-container--custom">
-      <!-- 无壁纸占位 -->
-      <div class="bg-switcher--local-previews" v-if="isNoneBg">
-        <el-icon class="bg-switcher-preview__placeholder"><brightness6-twotone /></el-icon>
-      </div>
-      <!-- 本地壁纸预览/上传 -->
-      <div
-        v-else-if="isLocalBg"
-        class="bg-switcher--local-previews"
-        :style="{ height: `${customLocalContentHeight}px` }"
-      >
-        <!-- 浅色模式本地壁纸上传 -->
-        <el-upload
-          v-show="!isDarkBg"
-          class="bg-switcher-uploader"
-          :show-file-list="false"
-          :http-request="(option: UploadRequestOptions) => handleUpload(option)"
-          :before-upload="beforeBackgroundUpload"
-          accept="image/*,video/*"
-        >
-          <template v-if="settings.background.local.id">
-            <div class="bg-switcher-preview">
-              <video
-                v-if="settings.background.local.mediaType === 'video'"
-                :src="localBgUrl"
-                aria-hidden="true"
-                muted
-                playsinline
-              ></video>
-              <img v-else :src="localBgUrl" alt="" />
-            </div>
-          </template>
-          <el-icon v-else class="bg-switcher-preview__placeholder"><upload-round /></el-icon>
-        </el-upload>
-        <!-- 深色模式本地壁纸上传 -->
-        <el-upload
-          v-if="isDarkBg && settings.background.local.id"
-          class="bg-switcher-uploader"
-          :show-file-list="false"
-          :http-request="(option: UploadRequestOptions) => handleUpload(option)"
-          :before-upload="beforeBackgroundUpload"
-          accept="image/*,video/*"
-        >
-          <template v-if="settings.background.localDark.id">
-            <div class="bg-switcher-preview">
-              <video
-                v-if="settings.background.localDark.mediaType === 'video'"
-                :src="localDarkBgUrl"
-                aria-hidden="true"
-                muted
-                playsinline
-              ></video>
-              <img v-else :src="localDarkBgUrl" alt="" />
-            </div>
-          </template>
-          <el-icon v-else class="bg-switcher-preview__placeholder"><upload-round /></el-icon>
-        </el-upload>
-        <!-- 删除本地壁纸按钮 -->
+          </el-upload>
+          <button
+            v-if="isShowDeleteIcon"
+            type="button"
+            class="bg-switcher-preview-delete"
+            :aria-label="t('newtab:common.delete')"
+            @click="deleteLocalBg"
+          >
+            <el-icon><close-round /></el-icon>
+          </button>
+        </template>
+        <template v-else>
+          <img v-if="previewSrc" :src="previewSrc" alt="" />
+          <div v-else class="bg-switcher__preview-placeholder">
+            <el-icon><cloud-queue-twotone /></el-icon>
+          </div>
+        </template>
+
+        <span class="bg-switcher__preview-size">1920 × 1080 原比例预览</span>
         <button
-          v-if="isShowDeleteIcon"
+          v-if="activeTab === 'online'"
           type="button"
-          class="bg-switcher-uploader-delete"
-          :aria-label="t('newtab:common.delete')"
-          @click="deleteLocalBg"
+          class="bg-switcher__preview-action"
+          :disabled="previewLoading"
+          @click="swapPreview"
         >
-          <el-icon><close-round /></el-icon>
+          <el-icon><svg viewBox="0 0 24 24"><path
+            fill="currentColor"
+            d="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8a6.05 6.05 0 0 1-.7-2.8c0-3.31 2.69-6 6-6zm6.76 1.74L17.3 9.2c.44.84.7 1.79.7 2.8 0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26z"
+          /></svg></el-icon>
+          {{ t('background.swap') }}
         </button>
-        <!-- 本地浅色壁纸信息 -->
-        <div v-if="metaLight && !isDarkBg" class="bg-switcher-uploader-meta">
-          <div>
-            {{ metaLight.size ? formatBytes(metaLight.size) : '' }}
-            {{ metaLight.width ? `${metaLight.width}×${metaLight.height}` : '' }}
-            {{ metaLight.duration ? `${metaLight.duration.toFixed(1)}s` : '' }}
-          </div>
-        </div>
-        <!-- 本地深色壁纸信息 -->
-        <div v-if="metaDark && isDarkBg" class="bg-switcher-uploader-meta">
-          <div>
-            {{ metaDark.size ? formatBytes(metaDark.size) : '' }}
-            {{ metaDark.width ? `${metaDark.width}×${metaDark.height}` : '' }}
-            {{ metaDark.duration ? `${metaDark.duration.toFixed(1)}s` : '' }}
-          </div>
-        </div>
-        <!-- 切换浅色/深色模式壁纸 -->
-        <div class="bg-switcher-theme-switch">
-          <el-switch
-            v-model="isDarkBg"
-            :active-icon="DarkModeTwotone"
-            :inactive-icon="LightModeTwotone"
-            :before-change="beforeLocalBgSwitch"
-          />
-        </div>
       </div>
-      <!-- 在线壁纸预览 -->
-      <div class="bg-switcher--local-previews" v-else-if="isOnlineBg">
-        <el-icon class="bg-switcher-preview__placeholder"><cloud-queue-twotone /></el-icon>
+
+      <div class="bg-switcher__tabs">
+        <button
+          type="button"
+          class="bg-switcher__tab"
+          :class="{ 'bg-switcher__tab--active': activeTab === 'online' }"
+          @click="switchTab('online')"
+        >
+          {{ t('background.tab.curated') }}
+        </button>
+        <button
+          type="button"
+          class="bg-switcher__tab"
+          :class="{ 'bg-switcher__tab--active': activeTab === 'link' }"
+          @click="switchTab('link')"
+        >
+          {{ t('background.tab.link') }}
+        </button>
+        <button
+          type="button"
+          class="bg-switcher__tab"
+          :class="{ 'bg-switcher__tab--active': activeTab === 'local' }"
+          @click="switchTab('local')"
+        >
+          {{ t('background.tab.local') }}
+        </button>
       </div>
-      <!-- 必应壁纸预览 -->
-      <div
-        class="bg-switcher--local-previews"
-        v-else-if="settings.background.bgType === BgType.Bing"
-      >
-        <el-icon class="bg-switcher-preview__placeholder"><bing /></el-icon>
+
+      <!-- 在线精选 -->
+      <div v-if="activeTab === 'online'" class="bg-switcher__presets">
+        <button
+          type="button"
+          class="bg-switcher__preset"
+          :class="{ 'bg-switcher__preset--active': selectedSource === 'picsum' }"
+          :disabled="previewLoading"
+          @click="chooseSource('picsum')"
+        >
+          <span class="bg-switcher__preset-name">{{ t('background.preset.picsum') }}</span>
+          <span class="bg-switcher__preset-desc">{{ t('background.preset.picsumDesc') }}</span>
+        </button>
+        <button
+          type="button"
+          class="bg-switcher__preset"
+          :class="{ 'bg-switcher__preset--active': selectedSource === 'peapix' }"
+          :disabled="previewLoading"
+          @click="chooseSource('peapix')"
+        >
+          <span class="bg-switcher__preset-name">{{ t('background.preset.peapix') }}</span>
+          <span class="bg-switcher__preset-desc">{{ t('background.preset.peapixDesc') }}</span>
+        </button>
+        <button
+          v-if="settings.background.online.previousUrl"
+          type="button"
+          class="bg-switcher__restore"
+          @click="restorePrevious"
+        >
+          {{ t('background.restorePrevious') }}
+        </button>
       </div>
-      <div class="bg-switcher-content-wrapper">
-        <div class="bg-switcher-content" ref="customLocalContentRef">
-          <div class="bg-switcher-content-title">{{ t('background.chooseImageOrVideo') }}</div>
-          <el-text v-if="isNoneBg" line-clamp="2" class="bg-switcher-content-description">
-            {{ t('background.sunMoonSaying') }}
-          </el-text>
-          <el-text v-else-if="isLocalBg" line-clamp="2" class="bg-switcher-content-description">
-            {{ t('background.myZoneMyRule') }}
-          </el-text>
-          <el-text v-else-if="isOnlineBg" line-clamp="2" class="bg-switcher-content-description">
-            {{ t('background.alwaysFresh') }}
-          </el-text>
-          <el-text v-else line-clamp="2" class="bg-switcher-content-description">
-            {{ t('background.youLikeFine') }}
-          </el-text>
-          <el-space wrap class="bg-switcher-content-actions">
-            <el-button
-              bg
-              text
-              :icon="TripOriginRound"
-              :class="{ active: isNoneBg }"
-              @click="handleNoneBg"
-            >
-              {{ isDark ? t('background.button.bathe.moon') : t('background.button.bathe.sun') }}
-            </el-button>
-            <el-button
-              bg
-              text
-              :icon="FolderCopyRound"
-              :class="{ active: isLocalBg }"
-              @click="settings.background.bgType = BgType.Local"
-            >
-              {{ t('background.type.local') }}
-            </el-button>
-            <el-button
-              bg
-              text
-              :icon="InsertLinkRound"
-              :class="{ active: isOnlineBg }"
-              @click="onlineImageWarn"
-            >
-              {{ t('background.type.online') }}
-            </el-button>
-          </el-space>
-        </div>
-      </div>
-      <div class="bg-switcher-extra">
+
+      <!-- 图片链接 -->
+      <div v-else-if="activeTab === 'link'" class="bg-switcher__link">
         <el-input
-          v-if="isOnlineBg"
           v-model="tempOnlineUrl"
+          :placeholder="t('background.onlinePlaceholder')"
+          class="bg-switcher__link-input"
           @blur="changeOnlineBg"
           @keydown.enter="changeOnlineBg"
-          placeholder="https://example.com/image.jpg"
         >
           <template #prepend>URL</template>
         </el-input>
-        <ul class="bg-switcher-warning">
-          <li v-if="isLocalBg">
-            {{ t('background.tip') }}
-          </li>
-          <li v-if="isVideoBg">
-            {{ t('background.video.warning') }}
-          </li>
-          <template v-if="isOnlineBg">
-            <li>{{ t('background.onlineTips.a') }}</li>
-            <li v-if="!settings.background.online.cache.enabled">
-              {{ t('background.onlineTips.b') }}
-            </li>
-            <li>{{ t('background.onlineTips.c') }}</li>
-            <li>{{ t('background.onlineTips.d') }}</li>
-          </template>
-        </ul>
+      </div>
+
+      <!-- 本地上传辅助信息 -->
+      <div v-else class="bg-switcher__local-meta">
+        <span v-if="metaLight && !isDarkBg">
+          {{ metaLight.size ? formatBytes(metaLight.size) : '' }}
+          {{ metaLight.width ? `${metaLight.width}×${metaLight.height}` : '' }}
+        </span>
+        <span v-if="metaDark && isDarkBg">
+          {{ metaDark.size ? formatBytes(metaDark.size) : '' }}
+          {{ metaDark.width ? `${metaDark.width}×${metaDark.height}` : '' }}
+        </span>
       </div>
     </div>
   </base-dialog>

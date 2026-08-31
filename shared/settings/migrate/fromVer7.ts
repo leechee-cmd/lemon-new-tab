@@ -1,3 +1,5 @@
+import { SortMode } from '@/shared/enums'
+
 import { defaultSettings } from '../default'
 import type { SettingsSchemaV7, SettingsSchemaV8 } from '../types'
 
@@ -103,7 +105,7 @@ export function migrateFromVer7To8(oldSettings: SettingsSchemaV7): SettingsSchem
     perf: { ...oldSettings.perf },
     bookmark: {
       ...oldSettings.bookmarkSidebar,
-      defaultSortMode: defaultSettings.bookmark.defaultSortMode,
+      defaultSortMode: SortMode.Original,
     },
     hideMajorChangelog: oldSettings.hideMajorChangelog,
     readChangeLog: oldSettings.readChangeLog,

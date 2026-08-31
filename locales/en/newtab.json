@@ -14,7 +14,6 @@
     "moveGroupUp": "Move group {{name}} up",
     "nextPage": "Next page",
     "openActionsMenu": "Open page actions menu",
-    "openBookmarks": "Open bookmarks",
     "openLanModeMenu": "Open LAN/WAN address mode menu",
     "previousPage": "Previous page",
     "quickLinksGroups": "Quick Links groups",
@@ -34,30 +33,7 @@
     "forceRemote": "Force remote"
   },
   "bookmark": {
-    "404": "Nothing found",
-    "addToQuickLinks": "Add to Quick Links",
-    "added": "Added to Quick Links",
-    "collapse": {
-      "all": "Collapse All at Level",
-      "other": "Collapse Other at Level"
-    },
-    "delete": {
-      "confirm": "Are you sure you want to delete “{{title}}”?",
-      "confirmFolder": "“{{title}}” is a folder. Deleting it will also delete all bookmarks inside it. Are you sure?",
-      "success": "“{{title}}” has been deleted"
-    },
-    "expandHint": "Please expand the sidebar to view bookmarks",
-    "moveError": "Failed to move bookmark",
-    "sortBy": "Sort by",
-    "sortMode": {
-      "createdAsc": "Newest",
-      "createdDesc": "Oldest",
-      "nameAsc": "Name A–Z",
-      "nameDesc": "Name Z–A",
-      "origin": "Original"
-    },
-    "title": "Bookmark",
-    "tooSmall": "Sidebar is too narrow"
+    "addToQuickLinks": "Add to Quick Links"
   },
   "bootstrap": {
     "invalidVer": {
@@ -121,10 +97,6 @@
     "sponsor": "Sponsor"
   },
   "notification": {
-    "bing": {
-      "message": "Please check the console output in developer tools.",
-      "title": "Failed to get Bing wallpaper"
-    },
     "faviconCacheHint": {
       "message": "Enable favicon cache in \"Other\" settings for faster icon loading",
       "title": "Tip: Favicon cache is disabled"
@@ -183,11 +155,6 @@
       "uploadFaviconAlert": "If you don't upload an icon, consider enabling Settings → Other → Icon cache to automatically fetch icons."
     },
     "addLink": "Add Link",
-    "bookmark": {
-      "add": "Add to Bookmarks",
-      "existing": "This bookmark already exists",
-      "success": "Saved to “{{folder}}”"
-    },
     "editLink": "Edit Link",
     "groups": {
       "default": "Default",
@@ -198,18 +165,11 @@
       "selectMoveTarget": "Choose a group to move to",
       "selectPinTarget": "Choose a group to save to",
       "selectTitle": "Choose Group",
-      "topSites": "Most visited",
       "untitled": "Group {{index}}"
     },
-    "hide": "Hide",
     "moveError": "Move failed",
     "moveLeft": "Move left",
     "moveRight": "Move right",
-    "hideTopMessage": {
-      "content": "Most visited site hidden.",
-      "restoreDefault": "Restore default",
-      "restoreSuccess": "Default most visited site restored"
-    },
     "pin": "Pin",
     "unpin": "Unpin",
     "unpinMessage": "Link unpinned.",

@@ -1,3 +1,4 @@
+import { SortMode } from '@/shared/enums'
 import { hex2rgba } from '@/shared/theme'
 
 import { defaultSettings } from '../default'
@@ -165,7 +166,18 @@ export function migrateFromVer8To9(oldSettings: SettingsSchemaV8): SettingsSchem
       },
     },
 
-    dock: defaultSettings.dock,
+    dock: {
+      enabled: false,
+      topSites: true,
+      showOnSearchFocus: true,
+      openInNewTab: false,
+      limitCount: false,
+      maxCount: 10,
+      gap: 5,
+      iconSize: 40,
+      iconRatio: 0.7,
+      launchpad: { enabled: false, topSites: true, openInNewTab: false },
+    },
     sync: oldSettings.sync,
 
     yiyan: {
@@ -223,7 +235,7 @@ export function migrateFromVer8To9(oldSettings: SettingsSchemaV8): SettingsSchem
       direction: oldSettings.bookmark.direction,
       rightClickToOpen: oldSettings.bookmark.rightClickToOpen,
       showBtn: !oldSettings.bookmark.hideBtn,
-      defaultSortMode: defaultSettings.bookmark.defaultSortMode,
+      defaultSortMode: SortMode.Original,
     },
 
     hideMajorChangelog: oldSettings.hideMajorChangelog,

@@ -25,10 +25,6 @@ interface LemonDBSchema extends DBSchema {
     key: string
     value: Blob
   }
-  wallpaperBing: {
-    key: string
-    value: Blob
-  }
   wallpaperDark: {
     key: string
     value: Blob
@@ -44,7 +40,6 @@ const DB_VERSION = 1
 const REQUIRED_STORES: readonly StoreName[] = [
   'favicon',
   'wallpaper',
-  'wallpaperBing',
   'wallpaperDark',
   'onlineWallpaperCache',
 ]
@@ -95,7 +90,6 @@ function getDB() {
 export type StoreName =
   | 'favicon'
   | 'wallpaper'
-  | 'wallpaperBing'
   | 'wallpaperDark'
   | 'onlineWallpaperCache'
 
