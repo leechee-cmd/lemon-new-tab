@@ -11,7 +11,7 @@
 
 Lemon New Tab is now a **pure web page** — no extension installation required:
 
-Visit <https://lemon.redln.top> directly. A reasonably recent version of a modern browser is recommended.
+Visit the deployed page URL to use it. A reasonably recent version of a modern browser is recommended.
 
 > You can also clone this repository and build a copy to deploy on your own server or any static hosting.
 
