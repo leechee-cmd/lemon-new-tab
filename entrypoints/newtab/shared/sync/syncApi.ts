@@ -36,11 +36,11 @@ async function post<T>(path: string, body: unknown): Promise<T> {
 }
 
 export function registerSyncCode(): Promise<{ code: string }> {
-  return post('/register', {})
+  return post('register', {})
 }
 
 export function fetchRemoteData(code: string): Promise<SyncRemoteData> {
-  return post('/fetch', { code })
+  return post('fetch', { code })
 }
 
 export function pushRemoteData(
@@ -49,9 +49,9 @@ export function pushRemoteData(
   base: number,
   updatedAt: number,
 ): Promise<{ ok: true; updatedAt: number }> {
-  return post('/push', { code, ...data, base, updatedAt })
+  return post('push', { code, ...data, base, updatedAt })
 }
 
 export function deleteRemoteData(code: string): Promise<{ ok: true }> {
-  return post('/delete', { code })
+  return post('delete', { code })
 }
