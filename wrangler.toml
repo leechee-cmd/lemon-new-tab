@@ -4,9 +4,8 @@ name = "lemon-new-tab"
 compatibility_date = "2026-08-31"
 pages_build_output_dir = "dist-web"
 
-# 设置同步用 KV 绑定在 Cloudflare 控制台配置（Pages 项目 → Settings → Functions →
-# KV namespace bindings，variable name = SYNC_KV），不要在 wrangler.toml 重复声明。
-# 如需本地 `wrangler pages dev` 联调，请临时在此追加：
-#   [[kv_namespaces]]
-#   binding = "SYNC_KV"
-#   id = "<真实 namespace id>"
+# 设置同步用 KV 绑定（同时作用于本地 `wrangler pages dev` 与云端 Git 集成部署）。
+# 注意：控制台里不要再重复添加 SYNC_KV 的 dashboard 绑定，避免重复声明。
+[[kv_namespaces]]
+binding = "SYNC_KV"
+id = "deb166c44a914542b9e0c55b9e07b6a1"
