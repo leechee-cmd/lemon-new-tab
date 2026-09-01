@@ -21,6 +21,7 @@ const settingsViewsMap: Record<
   [SettingsRoute.PERFORMANCE]: defineAsyncComponent(
     () => import('../Settings/PerformanceSettings.vue'),
   ),
+  [SettingsRoute.SYNC]: defineAsyncComponent(() => import('../Settings/SyncSettings.vue')),
   [SettingsRoute.OTHER]: defineAsyncComponent(() => import('../Settings/OtherSettings.vue')),
 } as const
 

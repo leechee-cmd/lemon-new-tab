@@ -48,13 +48,14 @@ The page may connect to or display third-party services, third-party content, an
 - Google or Baidu search suggestions;
 - online wallpaper sources such as Lorem Picsum and Peapix;
 - online images, videos, APIs, or other network resources configured by you;
+- cloud settings sync (optional, based on Cloudflare KV, requires your explicit opt-in);
 - hosting providers or browser vendors' distribution, logging, or analytics services.
 
 The developer does **not** own, control, or guarantee the availability, stability, accuracy, security, legality, continuity, or compliance of such third-party services. Your access to and use of such services may also be subject to their own terms, privacy policies, and other rules.
 
 ## 6. Default Online Features and User Choice
 
-You understand and agree that some online features are **enabled by default or available by default**, such as search suggestions and Jinrishici content, while other online features require your own activation or configuration, such as online wallpapers or custom media URLs.
+You understand and agree that some online features are **enabled by default or available by default**, such as search suggestions and Jinrishici content, while other online features require your own activation or configuration, such as online wallpapers, custom media URLs, or cloud settings sync. Cloud settings sync is disabled by default and is only enabled when you actively generate or enter a sync code and perform an upload or download.
 
 You may decide whether to continue using such online features through page settings, browser permission settings, or network blocking rules. Disabling or blocking them may affect feature availability or user experience.
 

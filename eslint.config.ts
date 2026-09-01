@@ -21,6 +21,8 @@ export default defineConfigWithVueTs(
     '**/.output/*',
     '**/.wxt/*',
     '**/dist-web/*',
+    // Cloudflare Pages Functions 由 Cloudflare 独立打包校验，不参与项目 lint
+    '**/functions/**/*',
   ]),
 
   ...pluginVue.configs['flat/essential'],

@@ -8,6 +8,7 @@ import ColorLensOutlined from '~icons/ic/outline-color-lens'
 import ApiRound from '~icons/ic/round-api'
 import DashboardOutlined from '~icons/ic/round-dashboard'
 import FormatQuoteRound from '~icons/ic/round-format-quote'
+import SyncRound from '~icons/ic/round-sync'
 
 export const SettingsRoute = {
   MENU: 'menu',
@@ -20,6 +21,7 @@ export const SettingsRoute = {
   DOCK: 'dock',
   YIYAN: 'yiyan',
   PERFORMANCE: 'performance',
+  SYNC: 'sync',
   OTHER: 'other',
 } as const
 export type SettingsRoute = (typeof SettingsRoute)[keyof typeof SettingsRoute]
@@ -75,6 +77,11 @@ export const MENU_ITEMS: MenuItem[] = [
     key: SettingsRoute.PERFORMANCE,
     icon: ApiRound,
     titleKey: 'perf.title',
+  },
+  {
+    key: SettingsRoute.SYNC,
+    icon: SyncRound,
+    titleKey: 'sync.title',
   },
   {
     key: SettingsRoute.OTHER,

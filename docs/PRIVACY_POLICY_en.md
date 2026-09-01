@@ -34,6 +34,7 @@ The page stores the following data locally on your device:
 - Quick Links and local state related to frequently visited sites;
 - search history, if that local feature is enabled;
 - local wallpapers, video wallpapers, cached online wallpapers, and related metadata;
+- the sync code and the last sync timestamp (only when you enable sync);
 - import/export files for settings (kept by you).
 
 This data is generally stored in your browser environment and is controlled by you or your browser. It is not automatically transmitted to the developer.
@@ -115,6 +116,13 @@ Risk notes:
 - Purpose: allow you to use any image, video, or API endpoint that you choose;
 - Risk note: once you configure an online resource URL, your browser sends requests directly to that site. The developer cannot review or control that site's privacy practices, security, legality, logging behavior, cross-border transfers, or downstream uses. Only use providers you trust.
 
+### 6.6 Cloud Settings Sync (optional)
+
+- Purpose: sync page settings, Quick Links, and custom search engines across your devices using a sync code;
+- Data storage: uses `Cloudflare KV`, keyed by the SHA-256 hash of your sync code, storing a snapshot of your settings and a sync timestamp;
+- Default status: **disabled by default**; only enabled when you actively generate or enter a sync code and perform an upload or download;
+- Risk note: once enabled, page settings, Quick Links, and custom search engine content are stored in Cloudflare KV (Cloudflare is an independent data processor whose edge network may be located outside your country/region). **The sync code is the access credential** — anyone who knows it can read or overwrite your cloud settings. Keep it safe. The page itself only stores the sync code locally.
+
 ## 7. Purposes of Processing
 
 The page, hosting provider, or third parties may process data for purposes such as:
@@ -181,7 +189,8 @@ The following scenarios may therefore involve cross-border transfer risks:
 
 - using Google search suggestions;
 - using overseas online wallpaper sources such as Lorem Picsum or Peapix;
-- using online wallpapers, media, or API endpoints hosted abroad.
+- using online wallpapers, media, or API endpoints hosted abroad;
+- using cloud settings sync (data stored on Cloudflare's global edge network).
 
 Different jurisdictions provide different levels of personal data protection. Transfer mechanisms that may be used by relevant providers can include, without limitation, Standard Contractual Clauses (SCCs), intra-group transfer rules, statutory certification or assessment mechanisms, data localization arrangements, regional traffic routing, or direct cross-border requests initiated on the basis of your consent. Because the developer does not control those third-party infrastructures, the developer cannot guarantee that any particular mechanism applies to every service or every region.
 
