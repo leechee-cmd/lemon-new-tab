@@ -1,18 +1,6 @@
-import wordsRaw from './wordlist.txt'
+import { SYNC_WORDS } from './wordlist'
 
-// 兼容 "11111 abacus" 与 "11111\tabacus" 两种 EFF 词表格式，取每行最后一个 token；
-// 仅保留纯小写字母单词，剔除连字符词（如 t-shirt）等会导致校验拆词失败的格式。
-const WORDS: string[] = wordsRaw
-  .split(/\r?\n/)
-  .map((line) => line.trim())
-  .filter(Boolean)
-  .map((line) => {
-    const tokens = line.split(/[\s\t]+/)
-    return tokens[tokens.length - 1] ?? ''
-  })
-  .filter((word) => /^[a-z]+$/.test(word))
-
-const WORD_SET = new Set(WORDS)
+const WORD_SET = new Set(SYNC_WORDS)
 
 /** 无偏随机索引（拒绝采样，避免取模偏置）。 */
 function randomIndex(max: number): number {
@@ -30,7 +18,7 @@ function randomIndex(max: number): number {
 export function pickSyncCode(wordCount = 10): string {
   const picks: string[] = []
   for (let i = 0; i < wordCount; i++) {
-    picks.push(WORDS[randomIndex(WORDS.length)]!)
+    picks.push(SYNC_WORDS[randomIndex(SYNC_WORDS.length)]!)
   }
   return picks.join('-')
 }
