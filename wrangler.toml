@@ -4,11 +4,9 @@ name = "lemon-new-tab"
 compatibility_date = "2026-08-31"
 pages_build_output_dir = "dist-web"
 
-# 设置同步用的 KV 命名空间。
-# 创建方式：Dashboard → Workers & Pages → KV → Create namespace，然后：
-#   - 方式 A（Git 集成）：把下方 id 换成真实 namespace id；
-#   - 方式 B：在 Pages 项目 Settings → Functions → KV namespace bindings 添加
-#     variable name = SYNC_KV，选择对应 namespace。
-[[kv_namespaces]]
-binding = "SYNC_KV"
-id = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"
+# 设置同步用 KV 绑定在 Cloudflare 控制台配置（Pages 项目 → Settings → Functions →
+# KV namespace bindings，variable name = SYNC_KV），不要在 wrangler.toml 重复声明。
+# 如需本地 `wrangler pages dev` 联调，请临时在此追加：
+#   [[kv_namespaces]]
+#   binding = "SYNC_KV"
+#   id = "<真实 namespace id>"
