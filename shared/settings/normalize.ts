@@ -142,6 +142,10 @@ export function normalizeCurrentSettings(settings: CURRENT_CONFIG_SCHEMA): CURRE
     normalized.theme.keepClockVisibleOnIdle,
     defaultSettings.theme.keepClockVisibleOnIdle,
   )
+  normalized.theme.autoWallpaperColor = normalizeBoolean(
+    normalized.theme.autoWallpaperColor,
+    defaultSettings.theme.autoWallpaperColor,
+  )
   normalized.background.showDownloadBtn = normalizeBoolean(
     normalized.background.showDownloadBtn,
     defaultSettings.background.showDownloadBtn,

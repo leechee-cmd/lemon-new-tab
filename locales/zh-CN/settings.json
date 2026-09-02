@@ -361,6 +361,8 @@
         "yellowGreen": "萌黄"
       }
     },
+    "autoWallpaperColor": "跟随壁纸颜色",
+    "autoWallpaperColorDesc": "根据当前壁纸自动提取主色调作为主题色",
     "colorful": {
       "desc": "将主题色应用到更多元素",
       "label": "全局色彩"

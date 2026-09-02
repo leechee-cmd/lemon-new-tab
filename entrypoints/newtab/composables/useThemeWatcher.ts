@@ -1,5 +1,20 @@
+import { useDark } from '@vueuse/core'
+import { storeToRefs } from 'pinia'
+
+import { BgType } from '@/shared/enums'
 import { defaultSettings, useSettingsStore } from '@/shared/settings'
-import { changeTheme, toggleDocumentClass } from '@/shared/theme'
+import {
+  changeTheme,
+  extractThemeColorFromBlob,
+  toggleDocumentClass,
+} from '@/shared/theme'
+
+import {
+  getCachedOnlineWallpaper,
+  useDarkWallpaperStorge,
+  useWallpaperStorge,
+  useWallpaperUrlStore,
+} from '@newtab/shared/wallpaper'
 
 const MAX_TRANSPARENCY = 95
 const DENSE_SURFACE_MAX_TRANSPARENCY = 80
@@ -229,22 +244,94 @@ function getEnabledBackdropBlur(config: {
   return config.transparent && config.transparency > 0 && config.blur ? config.blurIntensity : 0
 }
 
+let themeColorRequestVersion = 0
+
+async function applyActiveThemeColor(
+  settings: ReturnType<typeof useSettingsStore>,
+  isDark: Ref<boolean>,
+) {
+  const version = ++themeColorRequestVersion
+  if (!settings.theme.autoWallpaperColor) {
+    changeTheme(settings.theme.primaryColor || defaultSettings.theme.primaryColor)
+    return
+  }
+
+  const bgType = settings.background.bgType
+  if (bgType === BgType.None) {
+    changeTheme(settings.theme.primaryColor || defaultSettings.theme.primaryColor)
+    return
+  }
+
+  let blob: Blob | null = null
+  let sourceKey = ''
+
+  if (bgType === BgType.Local) {
+    const isDarkVariant = isDark.value && settings.background.localDark.id
+    const targetId = isDarkVariant
+      ? settings.background.localDark.id
+      : settings.background.local.id
+    if (!targetId) {
+      changeTheme(settings.theme.primaryColor || defaultSettings.theme.primaryColor)
+      return
+    }
+    sourceKey = `local:${targetId}`
+    const store = isDarkVariant ? useDarkWallpaperStorge : useWallpaperStorge
+    blob = await store.getItem<Blob>(targetId)
+  } else if (bgType === BgType.Online) {
+    const rawUrl = settings.background.online.url
+    if (!rawUrl) {
+      changeTheme(settings.theme.primaryColor || defaultSettings.theme.primaryColor)
+      return
+    }
+    sourceKey = `online:${rawUrl}`
+    const cached = await getCachedOnlineWallpaper(rawUrl)
+    blob = cached?.blob ?? null
+  }
+
+  if (version !== themeColorRequestVersion) return
+
+  if (blob) {
+    const extractedColor = await extractThemeColorFromBlob(blob, sourceKey)
+    if (version !== themeColorRequestVersion) return
+    if (extractedColor) {
+      changeTheme(extractedColor)
+      return
+    }
+  }
+
+  // 若无法获取 Blob（例如未开启缓存的在线壁纸）或提取失败，回退至 primaryColor
+  changeTheme(settings.theme.primaryColor || defaultSettings.theme.primaryColor)
+}
+
 /**
  * 监听主题与外观相关设置变化，自动应用 CSS 类和主题色。
  * 应在 App.vue setup 中调用一次。
  */
 export function useThemeWatcher() {
   const settings = useSettingsStore()
+  const isDark = useDark()
+  const wallpaperUrlStore = useWallpaperUrlStore()
+  const { onlineUrl } = storeToRefs(wallpaperUrlStore)
+
   const dialogTransparencyEnabled = computed(
     () => settings.perf.dialog.transparent && settings.perf.dialog.transparency > 0,
   )
 
   watch(
-    () => settings.theme.primaryColor,
-    (color) => {
-      if (color === null) return
-      changeTheme(color)
+    [
+      () => settings.theme.autoWallpaperColor,
+      () => settings.theme.primaryColor,
+      () => settings.background.bgType,
+      () => settings.background.online.url,
+      () => settings.background.local.id,
+      () => settings.background.localDark.id,
+      isDark,
+      onlineUrl,
+    ],
+    () => {
+      void applyActiveThemeColor(settings, isDark)
     },
+    { immediate: true },
   )
 
   watch(

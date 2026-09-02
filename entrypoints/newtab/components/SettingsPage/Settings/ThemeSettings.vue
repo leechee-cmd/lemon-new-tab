@@ -142,6 +142,11 @@ const tagType = computed(() => (settings.theme.colorfulMode ? 'primary' : 'info'
       :title="t('common.sections.appearance')"
       :summary="t('common.sections.summary.appearance')"
     >
+      <div class="settings__item settings__item--horizontal settings__item--with-note">
+        <div class="settings__label">{{ t('theme.autoWallpaperColor') }}</div>
+        <el-switch v-model="settings.theme.autoWallpaperColor" />
+        <p class="settings__item-note">{{ t('theme.autoWallpaperColorDesc') }}</p>
+      </div>
       <div class="settings__item settings__item--horizontal">
         <div class="settings__label">
           {{ t('theme.primaryColor') }}
@@ -149,6 +154,7 @@ const tagType = computed(() => (settings.theme.colorfulMode ? 'primary' : 'info'
         <div class="settings__theme">
           <el-select
             v-model="settings.theme.primaryColor"
+            :disabled="settings.theme.autoWallpaperColor"
             style="width: 183px"
             popper-class="settings-item-popper"
             :show-arrow="false"
@@ -173,6 +179,7 @@ const tagType = computed(() => (settings.theme.colorfulMode ? 'primary' : 'info'
           </el-select>
           <el-color-picker
             v-model="settings.theme.primaryColor"
+            :disabled="settings.theme.autoWallpaperColor"
             :predefine="predefineColors"
           />
         </div>

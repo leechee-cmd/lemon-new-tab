@@ -361,6 +361,8 @@
         "yellowGreen": "萌黄"
       }
     },
+    "autoWallpaperColor": "跟隨桌布顏色",
+    "autoWallpaperColorDesc": "根據當前桌布自動擷取主色調作為主題色",
     "colorful": {
       "desc": "將主題色應用到更多介面元素",
       "label": "全局色彩"

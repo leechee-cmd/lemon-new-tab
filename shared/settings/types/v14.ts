@@ -6,7 +6,9 @@ import type { SettingsSchemaV13 } from './v13'
  * 主题色改为始终使用用户固定的 `primaryColor`。
  */
 export interface SettingsSchemaV14 extends Omit<SettingsSchemaV13, 'version' | 'theme'> {
-  theme: Omit<SettingsSchemaV13['theme'], 'monetColor'>
+  theme: Omit<SettingsSchemaV13['theme'], 'monetColor'> & {
+    autoWallpaperColor?: boolean
+  }
 
   version: 14
 }

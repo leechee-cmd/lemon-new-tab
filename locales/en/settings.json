@@ -361,6 +361,8 @@
         "yellowGreen": "Moegi Green"
       }
     },
+    "autoWallpaperColor": "Follow wallpaper color",
+    "autoWallpaperColorDesc": "Automatically extract the primary theme color from the current wallpaper",
     "colorful": {
       "desc": "Apply the theme color to more elements",
       "label": "Global Color Mode"

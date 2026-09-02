@@ -6,6 +6,7 @@ import { type CURRENT_CONFIG_SCHEMA, CURRENT_CONFIG_VERSION } from './current'
 export const defaultSettings = {
   theme: {
     primaryColor: '#f5b800',
+    autoWallpaperColor: false,
     colorfulMode: false,
     idleHide: false,
     keepClockVisibleOnIdle: false,
