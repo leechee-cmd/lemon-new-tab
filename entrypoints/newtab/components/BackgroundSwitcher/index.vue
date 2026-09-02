@@ -165,7 +165,14 @@ watch(opened, (visible) => {
           </div>
         </template>
 
-        <span class="bg-switcher__preview-size">1920 × 1080 原比例预览</span>
+        <button
+          v-if="activeTab === 'online' && settings.background.online.previousUrl"
+          type="button"
+          class="bg-switcher__preview-action bg-switcher__preview-action--restore"
+          @click="restorePrevious"
+        >
+          {{ t('background.restorePrevious') }}
+        </button>
         <button
           v-if="activeTab === 'online'"
           type="button"
@@ -229,14 +236,6 @@ watch(opened, (visible) => {
         >
           <span class="bg-switcher__preset-name">{{ t('background.preset.peapix') }}</span>
           <span class="bg-switcher__preset-desc">{{ t('background.preset.peapixDesc') }}</span>
-        </button>
-        <button
-          v-if="settings.background.online.previousUrl"
-          type="button"
-          class="bg-switcher__restore"
-          @click="restorePrevious"
-        >
-          {{ t('background.restorePrevious') }}
         </button>
       </div>
 
