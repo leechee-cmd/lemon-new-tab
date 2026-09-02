@@ -4,12 +4,28 @@ import { ref, watch } from 'vue'
 import { isMediaFile, isVideoFile } from '@/shared/media'
 import { useSettingsStore } from '@/shared/settings'
 import type { localBackground } from '@/shared/settings/types/type'
+import type { CachedImage } from '@/shared/storage/idb'
 
+import {
+  cacheOnlineWallpaper,
+  getCachedOnlineWallpaper,
+} from './onlineCacheStore'
 import {
   useDarkWallpaperStorge,
   useWallpaperStorge,
   wallpaperUrlCache,
 } from './wallpaperStorge'
+
+function isOnlineWallpaperCacheValid(
+  cached: CachedImage | null,
+  now: number,
+  settings: ReturnType<typeof useSettingsStore>,
+) {
+  if (!cached) return false
+  const ageHours = (now - cached.timestamp) / 36e5
+  const withinDuration = ageHours <= settings.background.online.cache.duration
+  return settings.background.online.cache.noExpires || withinDuration
+}
 
 export const useWallpaperUrlStore = defineStore('wallpaperUrl', () => {
   const settings = useSettingsStore()
@@ -190,5 +206,143 @@ export const useWallpaperUrlStore = defineStore('wallpaperUrl', () => {
     updateRef(type, '')
   }
 
-  return { getUrl, setUrl, clearUrl, lightUrl, darkUrl }
+  // --- 在线壁纸状态与解析 ---
+  const onlineUrl = ref('')
+  const isOnlineLoading = ref(false)
+  let resolvedOnlineRawUrl = ''
+  let onlineRequestVersion = 0
+  let onlineFetchController: AbortController | null = null
+  let inFlightOnlinePromise: Promise<string> | null = null
+
+  const updateOnlineRef = (url: string, rawUrl = settings.background.online.url) => {
+    const oldUrl = onlineUrl.value
+    if (oldUrl.startsWith('blob:') && oldUrl !== url) {
+      URL.revokeObjectURL(oldUrl)
+    }
+    onlineUrl.value = url
+    resolvedOnlineRawUrl = url ? rawUrl : ''
+  }
+
+  const getOnlineUrl = async (
+    targetRawUrl?: string,
+    forceRefresh = false,
+  ): Promise<string> => {
+    const rawUrl = targetRawUrl ?? settings.background.online.url
+    if (!rawUrl) {
+      onlineRequestVersion += 1
+      onlineFetchController?.abort()
+      onlineFetchController = null
+      inFlightOnlinePromise = null
+      updateOnlineRef('', '')
+      isOnlineLoading.value = false
+      return ''
+    }
+
+    // 弹窗预览与背景组件共享同一个 Store；同一壁纸已经解析时直接复用，
+    // 避免重复网络下载及 Blob 撤销导致的背景闪烁或延迟。
+    if (!forceRefresh && resolvedOnlineRawUrl === rawUrl && onlineUrl.value) {
+      return onlineUrl.value
+    }
+
+    // 若同一 URL 已有在途下载请求，直接复用该 Promise，彻底消除重复并发请求。
+    if (!forceRefresh && inFlightOnlinePromise && resolvedOnlineRawUrl === rawUrl) {
+      return inFlightOnlinePromise
+    }
+
+    const version = ++onlineRequestVersion
+    resolvedOnlineRawUrl = rawUrl
+    onlineFetchController?.abort()
+    onlineFetchController = new AbortController()
+    const { signal } = onlineFetchController
+
+    isOnlineLoading.value = true
+
+    const fetchPromise = (async () => {
+      try {
+        // Peapix 图床（img.peapix.com）不带 CORS 头，fetch 必然失败；
+        // 直接使用原始 URL 展示，避免无谓的网络报错与等待。
+        if (
+          settings.background.online.source === 'peapix' ||
+          rawUrl.startsWith('https://img.peapix.com/')
+        ) {
+          if (version !== onlineRequestVersion) return onlineUrl.value
+          updateOnlineRef(rawUrl, rawUrl)
+          return rawUrl
+        }
+
+        const now = Date.now()
+        const useCache = settings.background.online.cache.enabled
+        const cached = useCache && !forceRefresh ? await getCachedOnlineWallpaper(rawUrl) : null
+
+        if (cached && isOnlineWallpaperCacheValid(cached, now, settings)) {
+          if (version !== onlineRequestVersion) return onlineUrl.value
+          const blobUrl = URL.createObjectURL(cached.blob)
+          updateOnlineRef(blobUrl, rawUrl)
+          return blobUrl
+        }
+
+        let blob: Blob | null = null
+        try {
+          const res = await fetch(rawUrl, { signal })
+          if (!res.ok) throw new Error(`${res.status} ${res.statusText}`)
+          blob = await res.blob()
+        } catch (e) {
+          if (e instanceof DOMException && e.name === 'AbortError') {
+            return onlineUrl.value
+          }
+          // 无 CORS 或网络异常时静默降级：优先复用旧缓存，否则回退为原始 URL。
+          if (cached) {
+            if (version !== onlineRequestVersion) return onlineUrl.value
+            const blobUrl = URL.createObjectURL(cached.blob)
+            updateOnlineRef(blobUrl, rawUrl)
+            return blobUrl
+          }
+          if (version !== onlineRequestVersion) return onlineUrl.value
+          updateOnlineRef(rawUrl, rawUrl)
+          return rawUrl
+        }
+
+        if (version !== onlineRequestVersion) return onlineUrl.value
+
+        if (useCache && blob) {
+          await cacheOnlineWallpaper(rawUrl, { blob, timestamp: now })
+        }
+
+        if (version !== onlineRequestVersion) return onlineUrl.value
+
+        const blobUrl = blob ? URL.createObjectURL(blob) : rawUrl
+        updateOnlineRef(blobUrl, rawUrl)
+        return blobUrl
+      } finally {
+        if (version === onlineRequestVersion) {
+          isOnlineLoading.value = false
+          inFlightOnlinePromise = null
+        }
+      }
+    })()
+
+    inFlightOnlinePromise = fetchPromise
+    return fetchPromise
+  }
+
+  const clearOnlineUrl = () => {
+    onlineRequestVersion += 1
+    onlineFetchController?.abort()
+    onlineFetchController = null
+    inFlightOnlinePromise = null
+    updateOnlineRef('', '')
+    isOnlineLoading.value = false
+  }
+
+  return {
+    getUrl,
+    setUrl,
+    clearUrl,
+    lightUrl,
+    darkUrl,
+    onlineUrl,
+    isOnlineLoading,
+    getOnlineUrl,
+    clearOnlineUrl,
+  }
 })

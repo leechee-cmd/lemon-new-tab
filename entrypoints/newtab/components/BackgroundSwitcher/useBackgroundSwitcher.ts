@@ -178,10 +178,12 @@ function useBackgroundSwitcher() {
       settings.background.bgType = BgType.None
       settings.background.online.url = ''
       tempOnlineUrl.value = ''
+      wallpaperUrlStore.clearOnlineUrl()
       return
     }
     // 清除已有缓存
     await clearAllOnlineWallpaperCache()
+    wallpaperUrlStore.clearOnlineUrl()
 
     // Web 端无主机权限，直接设置在线壁纸 URL，并询问是否开启缓存。
     settings.background.online.url = _url
@@ -189,6 +191,7 @@ function useBackgroundSwitcher() {
     settings.background.online.lastAutoRefresh = 0
     settings.background.bgType = BgType.Online
     await offerEnableOnlineWallpaperCache()
+    await wallpaperUrlStore.getOnlineUrl(_url)
   }
 
   onMounted(async () => {

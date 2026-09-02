@@ -24,7 +24,7 @@ const opened = ref(false)
 
 const settings = useSettingsStore()
 const wallpaperUrlStore = useWallpaperUrlStore()
-const { lightUrl: localBgUrl, darkUrl: localDarkBgUrl } = storeToRefs(wallpaperUrlStore)
+const { lightUrl: localBgUrl, darkUrl: localDarkBgUrl, onlineUrl } = storeToRefs(wallpaperUrlStore)
 
 const {
   isDarkBg,
@@ -54,7 +54,7 @@ const previewSrc = computed(() => {
   if (activeTab.value === 'local') {
     return isDarkBg.value ? localDarkBgUrl.value : localBgUrl.value
   }
-  return settings.background.online.url
+  return onlineUrl.value || settings.background.online.url
 })
 
 async function applyOnlineSource(source: 'picsum' | 'peapix') {
@@ -70,6 +70,9 @@ async function applyOnlineSource(source: 'picsum' | 'peapix') {
     settings.background.online.url = url
     settings.background.online.lastAutoRefresh = Date.now()
     settings.background.bgType = BgType.Online
+
+    // 等待统一 store 解析/缓存新图（只发一次网络请求）
+    await wallpaperUrlStore.getOnlineUrl(url)
   } catch (error) {
     console.error('[background] Failed to apply online wallpaper:', error)
     ElMessage.error(t('background.preset.fetchFailed'))
@@ -78,14 +81,22 @@ async function applyOnlineSource(source: 'picsum' | 'peapix') {
   }
 }
 
-function restorePrevious() {
+async function restorePrevious() {
   const online = settings.background.online
   if (!online.previousUrl) return
-  const prev = online.previousUrl
-  online.previousUrl = online.url
-  online.url = prev
-  online.lastAutoRefresh = Date.now()
-  settings.background.bgType = BgType.Online
+  previewLoading.value = true
+  try {
+    const prev = online.previousUrl
+    online.previousUrl = online.url
+    online.url = prev
+    online.lastAutoRefresh = Date.now()
+    settings.background.bgType = BgType.Online
+    await wallpaperUrlStore.getOnlineUrl(prev)
+  } catch (error) {
+    console.error('[background] Failed to restore previous online wallpaper:', error)
+  } finally {
+    previewLoading.value = false
+  }
 }
 
 function chooseSource(source: 'picsum' | 'peapix') {
@@ -116,6 +127,9 @@ watch(
           ? 'link'
           : 'online'
     if (online.source === 'custom') tempOnlineUrl.value = online.url
+    if (settings.background.bgType === BgType.Online && online.url && !onlineUrl.value) {
+      void wallpaperUrlStore.getOnlineUrl(online.url)
+    }
     opened.value = true
   },
   { immediate: true },

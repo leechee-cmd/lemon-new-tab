@@ -15,9 +15,7 @@ import { useSettingsStore } from '@/shared/settings'
 import { useFocusState } from '@newtab/composables/useFocus'
 import { isOnlyTouchDevice } from '@newtab/shared/touch'
 import {
-  cacheOnlineWallpaper,
   clearAllOnlineWallpaperCache,
-  getCachedOnlineWallpaper,
   useWallpaperUrlStore,
 } from '@newtab/shared/wallpaper'
 
@@ -35,7 +33,7 @@ if (settings.background.fastAnimation) {
 }
 
 const wallpaperUrlStore = useWallpaperUrlStore()
-const { lightUrl, darkUrl } = storeToRefs(wallpaperUrlStore)
+const { lightUrl, darkUrl, onlineUrl } = storeToRefs(wallpaperUrlStore)
 const activeLocalUrl = computed(() =>
   isDark.value && settings.background.localDark.id ? darkUrl.value : lightUrl.value,
 )
@@ -43,14 +41,6 @@ const isSwitching = ref(true)
 
 const videoRef = useTemplateRef('videoRef')
 const bgURL = ref<string>('')
-const lastBlobUrl = ref<string>('')
-
-function revokeLastBlobUrl() {
-  if (lastBlobUrl.value) {
-    URL.revokeObjectURL(lastBlobUrl.value)
-    lastBlobUrl.value = ''
-  }
-}
 
 const bgOpacityDuration = ref(settings.background.fastAnimation ? '0.3s' : '1.25s')
 
@@ -165,134 +155,21 @@ const isVideoWallpaper = computed(() => {
 
 // 壁纸更新相关逻辑
 
-type CachedOnlineWallpaper = NonNullable<Awaited<ReturnType<typeof getCachedOnlineWallpaper>>>
-
-function isOnlineWallpaperCacheValid(cached: CachedOnlineWallpaper | null, now: number) {
-  if (!cached) return false
-  const ageHours = (now - cached.timestamp) / 36e5
-  const withinDuration = ageHours <= settings.background.online.cache.duration
-  return settings.background.online.cache.noExpires || withinDuration
-}
-
-type BackgroundSource = {
-  url: string
-  ownedObjectUrl: boolean
-}
-
-function createOnlineWallpaperBlobUrl(
-  cached: CachedOnlineWallpaper,
-): BackgroundSource {
-  return {
-    url: URL.createObjectURL(cached.blob),
-    ownedObjectUrl: true,
-  }
-}
-
-const bgTypeProviders: Record<BgType, () => Promise<BackgroundSource>> = {
+const bgTypeProviders: Record<BgType, () => Promise<string>> = {
   [BgType.Local]: async () => {
     const target = isDark.value && settings.background.localDark.id ? 'dark' : 'light'
     const targetUrl = target === 'dark' ? darkUrl : lightUrl
     // Store watcher 已经解析出的 URL 必须直接复用；再次读取 Blob 会创建新的对象 URL，
     // 反过来触发本组件 watcher 并形成无限加载循环。
     if (!targetUrl.value) await wallpaperUrlStore.getUrl(target)
-    return {
-      url: targetUrl.value,
-      ownedObjectUrl: false,
-    }
+    return targetUrl.value
   },
   [BgType.Online]: async () => {
     const rawUrl = settings.background.online.url
-    if (!rawUrl) {
-      return { url: '', ownedObjectUrl: false }
-    }
-
-    // Peapix 图床（img.peapix.com）不带 CORS 头，fetch 必然失败；
-    // 直接使用原始 URL 展示，避免无谓的缓存尝试与控制台报错。
-    if (
-      settings.background.online.source === 'peapix' ||
-      rawUrl.startsWith('https://img.peapix.com/')
-    ) {
-      return {
-        url: rawUrl,
-        ownedObjectUrl: false,
-      }
-    }
-
-    // 如果没有开启缓存，直接返回原始URL
-    if (!settings.background.online.cache.enabled) {
-      return {
-        url: rawUrl,
-        ownedObjectUrl: false,
-      }
-    }
-
-    // Cancel any in-flight fetch from a previous call before starting async work.
-    onlineFetchController?.abort()
-    onlineFetchController = new AbortController()
-    const { signal } = onlineFetchController
-
-    const now = Date.now()
-    const useCache = settings.background.online.cache.enabled
-    // 如果开启了缓存，则尝试从缓存中获取
-    const cached = useCache ? await getCachedOnlineWallpaper(rawUrl) : null
-
-    if (cached && isOnlineWallpaperCacheValid(cached, now)) {
-      return createOnlineWallpaperBlobUrl(cached)
-    }
-
-    let blob: Blob | null = null
-
-    // 如果没有命中缓存或没有开启缓存
-    try {
-      // 下载新的图像
-      const res = await fetch(rawUrl, { signal })
-      if (!res.ok) throw new Error(`${res.status} ${res.statusText}`)
-      blob = await res.blob()
-    } catch (e) {
-      if (e instanceof DOMException && e.name === 'AbortError') {
-        // This request was invalidated by a newer request or component teardown.
-        // updateBackgroundURL's version guard will discard the aborted result.
-        return { url: '', ownedObjectUrl: false }
-      }
-      // 无 CORS 的图源（如 Peapix 等）fetch 会失败。此时静默降级，不打断用户：
-      // 优先使用已有缓存，否则直接用原始 URL 作为背景。
-      if (cached) {
-        return createOnlineWallpaperBlobUrl(cached) // 缓存有效则继续使用缓存
-      }
-      // 无缓存可用，降级为原始 URL。
-      return {
-        url: rawUrl,
-        ownedObjectUrl: false,
-      }
-    }
-
-    const newCache = { blob, timestamp: now }
-
-    // 缓存新下载的图像（如果开启了缓存）
-    if (settings.background.online.cache.enabled) {
-      await cacheOnlineWallpaper(rawUrl, newCache)
-    }
-
-    return {
-      url: URL.createObjectURL(blob),
-      ownedObjectUrl: true,
-    }
+    if (!rawUrl) return ''
+    return await wallpaperUrlStore.getOnlineUrl(rawUrl)
   },
-  [BgType.None]: async () => ({ url: '', ownedObjectUrl: false }),
-}
-
-function revokeDiscardedSource(source: BackgroundSource) {
-  if (source.ownedObjectUrl && source.url) URL.revokeObjectURL(source.url)
-}
-
-function trackBackgroundBlobUrl(source: BackgroundSource) {
-  if (source.ownedObjectUrl && source.url) {
-    revokeLastBlobUrl()
-    lastBlobUrl.value = source.url
-    return
-  }
-
-  revokeLastBlobUrl()
+  [BgType.None]: async () => '',
 }
 
 watch(
@@ -317,31 +194,25 @@ watch(
 )
 
 let backgroundRequestVersion = 0
-let onlineFetchController: AbortController | null = null
 
 async function updateBackgroundURL(type: BgType): Promise<void> {
   const requestVersion = ++backgroundRequestVersion
   const provider = bgTypeProviders[type]
   if (!provider) return
 
-  let source: BackgroundSource
+  let url = ''
   try {
-    source = await provider()
+    url = await provider()
   } catch (error) {
     if (requestVersion !== backgroundRequestVersion) return
     console.error('Failed to update background URL:', error)
     isSwitching.value = false
     return
   }
-  if (requestVersion !== backgroundRequestVersion) {
-    revokeDiscardedSource(source)
-    return
-  }
-
-  trackBackgroundBlobUrl(source)
+  if (requestVersion !== backgroundRequestVersion) return
 
   // 只在URL真正变化时才执行切换动画
-  if (source.url === bgURL.value) {
+  if (url === bgURL.value) {
     // 新请求可能在旧请求的切换动画期间切回当前壁纸；此时要主动结束旧切换状态。
     isSwitching.value = false
     return
@@ -362,7 +233,7 @@ async function updateBackgroundURL(type: BgType): Promise<void> {
   }
   if (requestVersion !== backgroundRequestVersion) return
 
-  bgURL.value = source.url
+  bgURL.value = url
 
   isSwitching.value = false
   if (settings.perf.bgSwitchAnim) {
@@ -390,6 +261,12 @@ watch(
   },
 )
 
+watch(onlineUrl, (newOnlineUrl) => {
+  if (settings.background.bgType === BgType.Online && newOnlineUrl && newOnlineUrl !== bgURL.value) {
+    void updateBackgroundURL(BgType.Online)
+  }
+})
+
 onMounted(async () => {
   await updateBackgroundURL(settings.background.bgType)
 })
@@ -399,9 +276,8 @@ async function refreshBackground() {
   const type = settings.background.bgType
   try {
     if (type === BgType.Online) {
-      // Clear IDB cache only; the current blob URL is revoked through
-      // updateBackgroundURL's normal revokeLastBlobUrl() path.
       await clearAllOnlineWallpaperCache()
+      wallpaperUrlStore.clearOnlineUrl()
       await updateBackgroundURL(BgType.Online)
     }
   } catch (error) {
@@ -418,13 +294,8 @@ useEventListener('pageshow', async (e) => {
 
 // 组件卸载时清理watch
 onUnmounted(() => {
-  // 卸载时释放 Blob URL
-  revokeLastBlobUrl()
   // 使所有在途背景更新立即过期，避免卸载后继续写入响应式状态。
   backgroundRequestVersion += 1
-  // 卸载时取消正在进行的在线壁纸网络请求
-  onlineFetchController?.abort()
-  onlineFetchController = null
 })
 </script>
 
