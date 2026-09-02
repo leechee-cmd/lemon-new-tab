@@ -20,6 +20,7 @@ export default defineConfigWithVueTs(
     '**/components.d.ts',
     '**/.output/*',
     '**/.wxt/*',
+    '**/.wrangler/*',
     '**/dist-web/*',
     // Cloudflare Pages Functions 由 Cloudflare 独立打包校验，不参与项目 lint
     '**/functions/**/*',

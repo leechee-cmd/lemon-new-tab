@@ -5,20 +5,23 @@ import {
   useSettingsStore,
 } from '@/shared/settings'
 import { ensureSearchEngineAvailable } from '@/shared/searchEngines'
+import i18next from 'i18next'
 
 import {
   type CustomSearchEngineStorage,
   useCustomSearchEngineStore,
 } from '@newtab/shared/customSearchEngine'
 
-/** 云端同步的数据结构，与「导出/导入备份」保持一致。 */
+/** 云端同步的数据结构。 */
 export interface SyncBackup {
   settings: CURRENT_CONFIG_SCHEMA
   quickLinks: QuickLinksData
   customSearchEngines: CustomSearchEngineStorage
+  /** 当前界面语言（i18next 单独存储，需显式纳入同步） */
+  language: string
 }
 
-/** 收集当前设置快照（与导出备份使用同一数据源）。 */
+/** 收集当前设置快照。 */
 export function buildSyncBackup(): SyncBackup {
   const settings = useSettingsStore()
   const quickLinks = useQuickLinksStore()
@@ -28,10 +31,16 @@ export function buildSyncBackup(): SyncBackup {
     settings: settings.$state,
     quickLinks: quickLinks.getSnapshot(),
     customSearchEngines: customSearchEngineStore.$state,
+    language: i18next.language || navigator.language,
   }
 }
 
-/** 应用云端设置（与导入备份的处理逻辑一致：壁纸文件保留在本机）。 */
+/**
+ * 应用云端设置。
+ * - 本机壁纸文件 / blob 是设备私有，保留本机；
+ * - 在线壁纸地址（url / previousUrl / source）随云端同步；
+ * - 语言随云端同步。
+ */
 export async function applySyncBackup(data: SyncBackup): Promise<void> {
   const settings = useSettingsStore()
   const quickLinks = useQuickLinksStore()
@@ -42,18 +51,15 @@ export async function applySyncBackup(data: SyncBackup): Promise<void> {
   }
 
   const next = { ...data.settings }
-  // 本机壁纸文件 / blob 是设备私有，不同步：保留本机当前亮色壁纸与在线地址。
+  // 本机壁纸文件 / blob 是设备私有，不同步：保留本机亮色壁纸。
   // localDark 沿用导入逻辑：有云端值则采用，缺失时给空值。
+  // online（url / previousUrl / source 等）整体随云端同步。
   next.background = {
     ...next.background,
     local: { ...settings.$state.background.local },
     localDark: next.background.localDark
       ? { ...next.background.localDark }
       : { id: '', url: '', mediaType: undefined },
-    online: {
-      ...next.background.online,
-      url: settings.$state.background.online.url,
-    },
   }
 
   const importedSettings = normalizeCurrentSettings(next)
@@ -71,4 +77,8 @@ export async function applySyncBackup(data: SyncBackup): Promise<void> {
     settings.search,
     customSearchEngineStore.items.map((engine) => engine.id),
   )
+
+  if (data.language) {
+    await i18next.changeLanguage(data.language)
+  }
 }

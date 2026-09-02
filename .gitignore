@@ -15,6 +15,7 @@ node_modules
 .DS_Store
 .output
 .wxt
+.wrangler
 web-ext.config.ts
 dist-web
 .workbuddy/

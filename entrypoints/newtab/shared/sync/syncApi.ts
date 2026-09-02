@@ -12,6 +12,7 @@ export interface SyncRemoteData {
   settings?: unknown
   quickLinks?: unknown
   customSearchEngines?: unknown
+  language?: string
   updatedAt: number
 }
 
@@ -45,7 +46,7 @@ export function fetchRemoteData(code: string): Promise<SyncRemoteData> {
 
 export function pushRemoteData(
   code: string,
-  data: Pick<SyncRemoteData, 'settings' | 'quickLinks' | 'customSearchEngines'>,
+  data: Omit<SyncRemoteData, 'updatedAt'>,
   base: number,
   updatedAt: number,
 ): Promise<{ ok: true; updatedAt: number }> {

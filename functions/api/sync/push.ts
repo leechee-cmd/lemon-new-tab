@@ -13,6 +13,7 @@ interface PushBody {
   settings?: unknown
   quickLinks?: unknown
   customSearchEngines?: unknown
+  language?: string
   updatedAt?: number
 }
 
@@ -57,7 +58,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ env, request }) => {
     return Response.json({ error: 'invalid_json' }, { status: 400 })
   }
 
-  const { code, base, settings, quickLinks, customSearchEngines, updatedAt } = body
+  const { code, base, settings, quickLinks, customSearchEngines, language, updatedAt } = body
   if (!code || !isValidSyncCode(code)) {
     return Response.json({ error: 'invalid_code' }, { status: 400 })
   }
@@ -86,6 +87,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ env, request }) => {
       settings: stripDangerousKeys(settings),
       quickLinks: stripDangerousKeys(quickLinks),
       customSearchEngines: stripDangerousKeys(customSearchEngines),
+      language: typeof language === 'string' ? language : undefined,
       updatedAt,
     }),
   )
