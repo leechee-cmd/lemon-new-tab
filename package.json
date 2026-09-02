@@ -11,7 +11,9 @@
     "build:web": "vite build --config web/vite.config.ts",
     "preview": "vite preview --config web/vite.config.ts",
     "preview:web": "vite preview --config web/vite.config.ts",
-    "type-check": "vue-tsc -p tsconfig.web.json --noEmit",
+    "type-check": "run-s type-check:web type-check:functions",
+    "type-check:web": "vue-tsc -p tsconfig.web.json --noEmit",
+    "type-check:functions": "tsc -p tsconfig.functions.json --noEmit",
     "typecheck:web": "vue-tsc -p tsconfig.web.json --noEmit",
     "lint:oxlint": "oxlint . --fix -D correctness --ignore-path .gitignore",
     "lint:eslint": "eslint . --fix",
@@ -38,6 +40,7 @@
     "vue": "rc"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260901.1",
     "@iconify-json/ant-design": "^1.2.8",
     "@iconify-json/fa6-brands": "^1.2.6",
     "@iconify-json/fa6-solid": "^1.2.4",

@@ -11,7 +11,7 @@ interface Env {
 export const onRequestPost: PagesFunction<Env> = async ({ env }) => {
   // 键冲突概率极低，少量重试即可
   for (let attempt = 0; attempt < 3; attempt++) {
-    const code = pickSyncCode(10)
+    const code = pickSyncCode()
     const key = `settings:${await hashSyncCode(code)}`
     const existing = await env.SYNC_KV.get(key)
     if (existing != null) continue

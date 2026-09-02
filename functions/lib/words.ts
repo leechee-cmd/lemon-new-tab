@@ -2,6 +2,9 @@ import { SYNC_WORDS } from './wordlist'
 
 const WORD_SET = new Set(SYNC_WORDS)
 
+/** 同步码单词数，生成与校验共用同一常量。 */
+export const SYNC_WORD_COUNT = 10
+
 /** 无偏随机索引（拒绝采样，避免取模偏置）。 */
 function randomIndex(max: number): number {
   if (max <= 0) throw new Error('Sync word list is empty')
@@ -15,7 +18,7 @@ function randomIndex(max: number): number {
 }
 
 /** 生成由 N 个随机单词组成的同步码，如 "abacus-sunset-...-zoom"。 */
-export function pickSyncCode(wordCount = 10): string {
+export function pickSyncCode(wordCount = SYNC_WORD_COUNT): string {
   const picks: string[] = []
   for (let i = 0; i < wordCount; i++) {
     picks.push(SYNC_WORDS[randomIndex(SYNC_WORDS.length)]!)
@@ -26,7 +29,7 @@ export function pickSyncCode(wordCount = 10): string {
 /** 校验同步码格式：恰好 10 个小写单词，且每个词都在词表内。 */
 export function isValidSyncCode(code: string): boolean {
   const parts = code.split('-')
-  if (parts.length !== 10) return false
+  if (parts.length !== SYNC_WORD_COUNT) return false
   return parts.every((word) => WORD_SET.has(word))
 }
 

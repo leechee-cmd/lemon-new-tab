@@ -1,6 +1,7 @@
 // 由 EFF 大词表（https://www.eff.org/files/2016/07/18/eff_large_wordlist.txt）生成，
 // 共 7772 个纯小写字母单词（剔除连字符词）。
 // 内嵌为 TS 数组，避免依赖 Cloudflare Pages Functions 对 .txt 文件的加载器处理。
+// 注意：本词表必须向后兼容——新增单词可以，删除/改名会让存量同步码全部失效。
 export const SYNC_WORDS: readonly string[] = [
   "abacus",
   "abdomen",

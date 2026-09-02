@@ -1,4 +1,5 @@
 import { hashSyncCode, isValidSyncCode } from '../../lib/words'
+import { CURRENT_SETTINGS_VERSION } from '../../lib/settingsVersion'
 
 interface Env {
   SYNC_KV: KVNamespace
@@ -47,7 +48,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ env, request }) => {
   }
 
   const text = await request.text()
-  if (text.length > MAX_PAYLOAD_BYTES) {
+  if (new TextEncoder().encode(text).byteLength > MAX_PAYLOAD_BYTES) {
     return Response.json({ error: 'too_large' }, { status: 413 })
   }
 
@@ -55,6 +56,9 @@ export const onRequestPost: PagesFunction<Env> = async ({ env, request }) => {
   try {
     body = JSON.parse(text) as PushBody
   } catch {
+    return Response.json({ error: 'invalid_json' }, { status: 400 })
+  }
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
     return Response.json({ error: 'invalid_json' }, { status: 400 })
   }
 
@@ -67,6 +71,13 @@ export const onRequestPost: PagesFunction<Env> = async ({ env, request }) => {
   }
   if (typeof base !== 'number' || !Number.isFinite(base)) {
     return Response.json({ error: 'invalid_base' }, { status: 400 })
+  }
+  // 防线：拒绝非对象 settings 与版本不匹配的快照，防止旧客户端覆盖新版云端数据
+  if (typeof settings !== 'object' || settings == null || Array.isArray(settings)) {
+    return Response.json({ error: 'invalid_settings' }, { status: 400 })
+  }
+  if ((settings as { version?: unknown }).version !== CURRENT_SETTINGS_VERSION) {
+    return Response.json({ error: 'invalid_version' }, { status: 400 })
   }
 
   const key = `settings:${await hashSyncCode(code)}`

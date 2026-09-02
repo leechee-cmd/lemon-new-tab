@@ -51,15 +51,13 @@ export async function applySyncBackup(data: SyncBackup): Promise<void> {
   }
 
   const next = { ...data.settings }
-  // 本机壁纸文件 / blob 是设备私有，不同步：保留本机亮色壁纸。
-  // localDark 沿用导入逻辑：有云端值则采用，缺失时给空值。
+  // 本机壁纸文件 / blob（local 与 localDark）是设备私有：id 指向本机 IndexedDB，
+  // 云端值在目标设备上解析不到，故一律保留本机当前壁纸。
   // online（url / previousUrl / source 等）整体随云端同步。
   next.background = {
     ...next.background,
     local: { ...settings.$state.background.local },
-    localDark: next.background.localDark
-      ? { ...next.background.localDark }
-      : { id: '', url: '', mediaType: undefined },
+    localDark: { ...settings.$state.background.localDark },
   }
 
   const importedSettings = normalizeCurrentSettings(next)
@@ -77,6 +75,9 @@ export async function applySyncBackup(data: SyncBackup): Promise<void> {
     settings.search,
     customSearchEngineStore.items.map((engine) => engine.id),
   )
+
+  // 立即持久化设置，避免依赖防抖保存导致「下载后马上关页」丢失
+  await settings.save()
 
   if (data.language) {
     await i18next.changeLanguage(data.language)
