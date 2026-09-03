@@ -25,7 +25,7 @@ Lemon New Tab is a local-first, open-source new tab page (pure web version) with
 &emsp;&ensp;Use Google, Bing, Baidu, DuckDuckGo, Yandex, and other search engines. Search suggestions, search history, and custom search engines help you quickly find what you need using a familiar workflow.
 
 **🧭 Quick Links**  
-&emsp;&ensp;Automatically display your most-visited sites, or add, pin, and rearrange your own links. Organize them into groups, browse with pages or scrolling, and switch to Dock or Launchpad layouts to keep favorite sites within easy reach.
+&emsp;&ensp;Easily add, pin, and rearrange your own custom links. Organize them into groups, browse with pages or scrolling, and switch seamlessly to Dock or Launchpad layouts to keep favorite sites within easy reach.
 
 **🖼️ Rich Wallpaper Options**  
 &emsp;&ensp;Built-in online wallpaper sources such as Lorem Picsum and Peapix, custom image URLs, and local images and videos as your wallpaper. Daily auto-rotation and manual refresh help bring your background to life.
@@ -94,15 +94,18 @@ This project is built with Vue 3 (TypeScript) + Element Plus.
 >    thank you for your understanding.
 > 3. PRs are welcome.
 
-### Build
+### Build & Test
 
 ```sh
 git clone https://github.com/Redlnn/lemon-new-tab.git
 cd lemon-new-tab
 pnpm install
-pnpm dev  # Local development preview
-pnpm build  # Build to dist-web/, a pure static site
-pnpm preview  # Preview the build output locally
+pnpm dev        # Local development (hot reload)
+pnpm build      # Build to dist-web/, a pure static site
+pnpm preview    # Preview the build output locally
+pnpm test:e2e   # Run Playwright E2E automated tests
+pnpm type-check # TypeScript type checking
+pnpm lint       # Code style linting and auto-fixing
 ```
 
 > The build output is a pure static bundle (`dist-web/`) that can be deployed to any static hosting, such as GitHub Pages, Vercel, or Nginx.

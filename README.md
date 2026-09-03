@@ -2,7 +2,7 @@
 
 <div align="center">
 
-[Enlgish](README_en.md) | 简体中文  
+[English](README_en.md) | 简体中文  
 [服务条款](docs/TERMS_OF_SERVICE.md) | [隐私政策](docs/PRIVACY_POLICY.md)
 
 </div>
@@ -25,7 +25,7 @@
 &emsp;&ensp;支持 Google、Bing、百度、DuckDuckGo、Yandex 等搜索引擎，提供搜索联想、搜索历史和自定义搜索引擎，让你用熟悉的方式快速找到内容。
 
 **🧭 快速导航**  
-&emsp;&ensp;自动展示最常访问的网站，也可以添加、置顶和拖动整理自己的链接。支持分组、分页、滚动浏览，也可切换为 Dock 和 Launchpad 样式，常用网站一目了然。
+&emsp;&ensp;便捷添加、置顶和拖动整理自定义常用链接。支持分组、分页、滚动浏览，也可切换为 Dock 和 Launchpad 样式，常用网站一目了然。
 
 **🖼️ 丰富壁纸**  
 &emsp;&ensp;内置 Lorem Picsum、Peapix 等在线壁纸源，也支持自定义图片链接以及本地图片和视频壁纸。支持每日自动更换、手动刷新，丰富的自定义选项让你的壁纸灵动起来。
@@ -83,7 +83,7 @@
 
 |           主要功能           | 柠檬起始页 |    青柠起始页    |
 | :--------------------------: | :--------: | :--------------: |
-|         最常访问网站         |     ✅     |        ❌        |
+| 多布局切换（Dock/Launchpad） |     ✅     |        ❌        |
 |          自定义壁纸          |     ✅     |        ✅        |
 |           深色模式           |     ✅     |        ✅        |
 |           视频壁纸           |     ✅     |        ✅        |
@@ -124,15 +124,18 @@
 >    确保功能正常，不包含恶意代码，其质量/性能或多或少可能存在问题，望各位谅解
 > 3. 欢迎 PR
 
-### 构建
+### 构建与测试
 
 ```sh
 git clone https://github.com/Redlnn/lemon-new-tab.git
 cd lemon-new-tab
 pnpm install
-pnpm dev  # 本地开发预览
-pnpm build  # 构建到 dist-web/，产物为纯静态站点
-pnpm preview  # 本地预览构建产物
+pnpm dev        # 本地开发预览
+pnpm build      # 构建到 dist-web/，产物为纯静态站点
+pnpm preview    # 本地预览构建产物
+pnpm test:e2e   # 自动化端到端测试（Playwright）
+pnpm type-check # TypeScript 类型检查
+pnpm lint       # 代码规范检查与自动修复
 ```
 
 > 构建产物为纯静态文件（`dist-web/`），可部署到任意静态托管，例如 GitHub Pages、Vercel、Nginx 等。
