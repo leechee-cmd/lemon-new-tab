@@ -41,6 +41,8 @@ export default defineConfig({
       'pinia',
       'idb',
       '@dnd-kit/vue',
+      '@dnd-kit/vue/sortable',
+      '@material/material-color-utilities',
     ],
   },
   css: {
