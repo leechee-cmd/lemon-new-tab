@@ -9,17 +9,18 @@
 
 ## Installation
 
-Lemon New Tab is now a **pure web page** — no extension installation required:
+Lychee Start is a **pure web application** — no extension installation required:
 
 Visit the deployed page URL to use it. A reasonably recent version of a modern browser is recommended.
 
-> You can also clone this repository and build a copy to deploy on your own server or any static hosting.
+> You can also clone this repository and build a copy to deploy on Cloudflare Pages, GitHub Pages, or your own server.
 
 ## Features
 
 Make every new tab feel fast, effortless, and enjoyable.
 
-Lemon New Tab is a local-first, open-source new tab page (pure web version) with no account required. Your core settings and personalized content stay in your browser, giving you fast loading, a clean interface, and no distracting news feed or ads.
+Lychee Start is a local-first, open-source new tab page (pure web version) with no account required. Your core settings and personalized content stay in your browser, giving you fast loading, a clean interface, and no distracting news feed or ads.
+> Note: This project evolved from and was refactored based on [Redlnn/lemon-new-tab](https://github.com/Redlnn/lemon-new-tab).
 
 **🔍 Flexible Search**  
 &emsp;&ensp;Use Google, Bing, Baidu, DuckDuckGo, Yandex, and other search engines. Search suggestions, search history, and custom search engines help you quickly find what you need using a familiar workflow.
@@ -97,8 +98,8 @@ This project is built with Vue 3 (TypeScript) + Element Plus.
 ### Build & Test
 
 ```sh
-git clone https://github.com/Redlnn/lemon-new-tab.git
-cd lemon-new-tab
+git clone https://github.com/leechee-cmd/lychee-start.git
+cd lychee-start
 pnpm install
 pnpm dev        # Local development (hot reload)
 pnpm build      # Build to dist-web/, a pure static site

@@ -9,17 +9,18 @@
 
 ## 安装
 
-柠檬起始页已改为**纯 Web 网页版**，无需安装任何扩展：
+荔枝起始页（Lychee Start）是一款**纯 Web 网页版**应用，无需安装任何扩展：
 
 访问部署好的页面地址即可使用，建议使用较新版本的现代浏览器。
 
-> 也可以 Clone 本仓库手动构建一份，部署到自己的服务器或任意静态托管。
+> 也可以 Clone 本仓库手动构建一份，部署到 Cloudflare Pages、GitHub Pages 或自己的服务器等任意静态托管。
 
 ## 特性
 
 让每次打开新标签页，都成为一次轻快、顺手又赏心悦目的开始。
 
-柠檬起始页是一款本地优先的开源新标签页（纯 Web 网页版），无需注册账号。核心设置和个性化内容保存在浏览器本地，页面加载迅速、界面简洁，也没有资讯流和广告干扰。
+荔枝起始页（Lychee Start）是一款本地优先的开源新标签页（纯 Web 网页版），无需注册账号。核心设置和个性化内容保存在浏览器本地，页面加载迅速、界面简洁，也没有资讯流和广告干扰。
+> 注：本项目由 [Redlnn/lemon-new-tab](https://github.com/Redlnn/lemon-new-tab) 彻底重构演化而来，转为纯静态 Web 应用并建立了自动化工程体系。
 
 **🔍 灵活搜索**  
 &emsp;&ensp;支持 Google、Bing、百度、DuckDuckGo、Yandex 等搜索引擎，提供搜索联想、搜索历史和自定义搜索引擎，让你用熟悉的方式快速找到内容。
@@ -127,8 +128,8 @@
 ### 构建与测试
 
 ```sh
-git clone https://github.com/Redlnn/lemon-new-tab.git
-cd lemon-new-tab
+git clone https://github.com/leechee-cmd/lychee-start.git
+cd lychee-start
 pnpm install
 pnpm dev        # 本地开发预览
 pnpm build      # 构建到 dist-web/，产物为纯静态站点

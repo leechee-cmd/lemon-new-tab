@@ -1,6 +1,6 @@
 # AGENTS.md
 
-本仓库是一个基于 Vite 8、Vue 3 和 TypeScript 的纯静态 Web 应用（Lemon New Tab 新标签页）。
+本仓库是一个基于 Vite 8、Vue 3 和 TypeScript 的纯静态 Web 应用（Lychee Start 荔枝起始页）。
 请将此文件作为 AI 编码代理的**全局宪法与 Harness 执行手册**。
 
 ## 渐进式披露与按需索引

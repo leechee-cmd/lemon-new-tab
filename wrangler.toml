@@ -1,6 +1,6 @@
 # Cloudflare Pages 项目配置
 # 部署入口：Cloudflare Pages（Git 集成），构建命令 `pnpm run build`，输出目录 `dist-web`。
-name = "lemon-new-tab"
+name = "lychee-start"
 compatibility_date = "2026-08-31"
 pages_build_output_dir = "dist-web"
 
