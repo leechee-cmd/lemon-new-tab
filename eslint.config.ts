@@ -22,6 +22,9 @@ export default defineConfigWithVueTs(
     '**/.wxt/*',
     '**/.wrangler/*',
     '**/dist-web/*',
+    '**/test-results/**',
+    '**/playwright-report/**',
+    '**/blob-report/**',
     // Cloudflare Pages Functions 由 Cloudflare 独立打包校验，不参与项目 lint
     '**/functions/**/*',
   ]),
