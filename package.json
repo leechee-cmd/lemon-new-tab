@@ -21,9 +21,10 @@
     "lint:check:oxlint": "oxlint . -D correctness --ignore-path .gitignore",
     "lint:check:eslint": "eslint .",
     "lint:check:style": "stylelint **/*.{css,scss,sass,less,vue,html} --ignore-path .gitignore",
-    "lint:check": "run-s lint:check:oxlint lint:check:eslint lint:check:style",
     "lint": "run-s lint:oxlint lint:eslint lint:style",
-    "format": "oxfmt ."
+    "format": "oxfmt .",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
     "@dnd-kit/vue": "^0.5.0",
@@ -47,6 +48,7 @@
     "@iconify-json/fa6-solid": "^1.2.4",
     "@iconify-json/fluent": "^1.2.54",
     "@iconify-json/ic": "^1.2.4",
+    "@playwright/test": "^1.62.1",
     "@types/node": "^26.1.2",
     "@vitejs/plugin-vue": "^6.0.8",
     "@vue/eslint-config-typescript": "^14.9.0",

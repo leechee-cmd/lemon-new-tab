@@ -40,3 +40,8 @@ dist-web
 
 *.tsbuildinfo
 .stylelintcache
+
+# Playwright
+test-results/
+playwright-report/
+blob-report/
